@@ -1,19 +1,26 @@
 services:
-  1p_web_st:
-    image: python:3.12-alpine
-    container_name: 1p_web_st
-    working_dir: /srv
-    command: >
-      sh -c "printf '<h1>1Place2Post STAGING Web</h1>\n<p>OK</p>\n' > index.html
-      && python -m http.server 3000"
+  1p_api_st:
+    container_name: 1p_api_st
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - APP_ENV=staging
+      - PORT=35764
     restart: unless-stopped
     networks:
       - proxy
 
-  1p_api_st:
-    image: hashicorp/http-echo:1.0
-    container_name: 1p_api_st
-    command: ["-listen=:35764", "-text={\"status\":\"ok\",\"env\":\"staging\"}"]
+  1p_web_st:
+    container_name: 1p_web_st
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - 1p_api_st
     restart: unless-stopped
     networks:
       - proxy

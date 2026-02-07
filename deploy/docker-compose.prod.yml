@@ -1,19 +1,26 @@
 services:
-  1p_web_prod:
-    image: python:3.12-alpine
-    container_name: 1p_web_prod
-    working_dir: /srv
-    command: >
-      sh -c "printf '<h1>1Place2Post PROD Web</h1>\n<p>OK</p>\n' > index.html
-      && python -m http.server 3000"
+  1p_api_prod:
+    container_name: 1p_api_prod
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - APP_ENV=prod
+      - PORT=35763
     restart: unless-stopped
     networks:
       - proxy
 
-  1p_api_prod:
-    image: hashicorp/http-echo:1.0
-    container_name: 1p_api_prod
-    command: ["-listen=:35763", "-text={\"status\":\"ok\",\"env\":\"prod\"}"]
+  1p_web_prod:
+    container_name: 1p_web_prod
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - 1p_api_prod
     restart: unless-stopped
     networks:
       - proxy
