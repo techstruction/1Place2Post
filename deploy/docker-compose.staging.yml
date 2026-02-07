@@ -1,0 +1,23 @@
+services:
+  1p_web_st:
+    image: python:3.12-alpine
+    container_name: 1p_web_st
+    working_dir: /srv
+    command: >
+      sh -c "printf '<h1>1Place2Post STAGING Web</h1>\n<p>OK</p>\n' > index.html
+      && python -m http.server 3000"
+    restart: unless-stopped
+    networks:
+      - proxy
+
+  1p_api_st:
+    image: hashicorp/http-echo:1.0
+    container_name: 1p_api_st
+    command: ["-listen=:35764", "-text={\"status\":\"ok\",\"env\":\"staging\"}"]
+    restart: unless-stopped
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

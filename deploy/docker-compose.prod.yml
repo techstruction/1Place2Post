@@ -1,0 +1,23 @@
+services:
+  1p_web_prod:
+    image: python:3.12-alpine
+    container_name: 1p_web_prod
+    working_dir: /srv
+    command: >
+      sh -c "printf '<h1>1Place2Post PROD Web</h1>\n<p>OK</p>\n' > index.html
+      && python -m http.server 3000"
+    restart: unless-stopped
+    networks:
+      - proxy
+
+  1p_api_prod:
+    image: hashicorp/http-echo:1.0
+    container_name: 1p_api_prod
+    command: ["-listen=:35763", "-text={\"status\":\"ok\",\"env\":\"prod\"}"]
+    restart: unless-stopped
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
