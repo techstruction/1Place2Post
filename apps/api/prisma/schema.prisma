@@ -30,6 +30,11 @@ model User {
   series         Series[]
   linkPages      LinkPage[]
   botRules       BotRule[]
+  mediaAssets    MediaAsset[]
+  templates      Template[]
+  postingSchedules PostingSchedule[]
+  engagementEvents EngagementEvent[]
+  teamMemberships  TeamMember[]
 }
 
 enum Role {
@@ -234,3 +239,136 @@ model PostMedia {
 
   @@unique([postId, mediaFileId])
 }
+
+// ─────────────────────────────────────────────
+// Phase 3: Media Assets (uploaded files)
+// TODO: S3 migration — replace urlPath with a signed S3/R2 URL before
+// moving beyond MVP to production scale. See implementation_plan.md.
+// ─────────────────────────────────────────────
+
+model MediaAsset {
+  id           String    @id @default(cuid())
+  userId       String
+  filename     String    // stored filename on disk
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  urlPath      String    // e.g. /uploads/filename.jpg
+  tags         String[]
+  createdAt    DateTime  @default(now())
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// Phase 3: Templates
+// ─────────────────────────────────────────────
+
+model Template {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  content     String    // caption template body
+  hashtags    String[]
+  platform    Platform? // null = any platform
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// Phase 3: Posting Schedule (preferred times)
+// ─────────────────────────────────────────────
+
+model PostingSchedule {
+  id        String   @id @default(cuid())
+  userId    String
+  platform  Platform
+  timezone  String   @default("UTC")
+  timesJson String   // JSON array of "HH:MM" strings
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform])
+}
+
+// ─────────────────────────────────────────────
+// Phase 3: Analytics / Engagement Events
+// ─────────────────────────────────────────────
+
+model EngagementEvent {
+  id        String          @id @default(cuid())
+  userId    String
+  platform  Platform
+  metric    EngagementMetric
+  value     Int
+  occurredAt DateTime       @default(now())
+
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum EngagementMetric {
+  LIKES
+  VIEWS
+  COMMENTS
+  SHARES
+  CLICKS
+  FOLLOWERS
+}
+
+// ─────────────────────────────────────────────
+// Phase 3: Teams
+// ─────────────────────────────────────────────
+
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  ownerId     String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  members     TeamMember[]
+  auditLogs   AuditLog[]
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  userId    String
+  role      TeamRole @default(MEMBER)
+  createdAt DateTime @default(now())
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+// ─────────────────────────────────────────────
+// Phase 3: Audit Log
+// ─────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  teamId     String?
+  entityType String   // e.g. "Post", "Template"
+  entityId   String?
+  action     String   // e.g. "created", "deleted"
+  metaJson   String   @default("{}")
+  createdAt  DateTime @default(now())
+
+  team       Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+}
+

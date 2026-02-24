@@ -16,9 +16,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/dashboard', label: '📊 Overview' },
         { href: '/dashboard/posts', label: '📝 Posts' },
         { href: '/dashboard/calendar', label: '📅 Calendar' },
+        { href: '/dashboard/media', label: '📁 Media' },
+        { href: '/dashboard/templates', label: '📋 Templates' },
+        { href: '/dashboard/analytics', label: '📊 Analytics' },
         { href: '/dashboard/connections', label: '🔗 Connections' },
         { href: '/dashboard/link-pages', label: '🌐 Link Pages' },
         { href: '/dashboard/bot-rules', label: '🤖 Bot Rules' },
+        { href: '/dashboard/team', label: '👥 Team' },
     ];
 
     return (
