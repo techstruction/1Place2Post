@@ -7,6 +7,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
+import { SocialAccountModule } from './social-account/social-account.module';
+import { SeriesModule } from './series/series.module';
+import { LinkPageModule } from './link-page/link-page.module';
+import { BotRuleModule } from './bot-rule/bot-rule.module';
 
 @Module({
   imports: [
@@ -15,6 +19,10 @@ import { PostModule } from './post/post.module';
     AuthModule,
     UserModule,
     PostModule,
+    SocialAccountModule,
+    SeriesModule,
+    LinkPageModule,
+    BotRuleModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

@@ -51,3 +51,36 @@ export const postsApi = {
     delete: (id: string) =>
         apiFetch(`/posts/${id}`, { method: 'DELETE' }),
 };
+
+// Social Accounts
+export const socialApi = {
+    list: () => apiFetch('/social-accounts'),
+    create: (data: object) => apiFetch('/social-accounts', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id: string) => apiFetch(`/social-accounts/${id}`, { method: 'DELETE' }),
+};
+
+// Series
+export const seriesApi = {
+    list: () => apiFetch('/series'),
+    create: (data: object) => apiFetch('/series', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id: string) => apiFetch(`/series/${id}`, { method: 'DELETE' }),
+};
+
+// Link Pages
+export const linkPagesApi = {
+    list: () => apiFetch('/link-pages'),
+    create: (data: object) => apiFetch('/link-pages', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: object) => apiFetch(`/link-pages/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: (id: string) => apiFetch(`/link-pages/${id}`, { method: 'DELETE' }),
+    addItem: (pageId: string, data: object) => apiFetch(`/link-pages/${pageId}/items`, { method: 'POST', body: JSON.stringify(data) }),
+    removeItem: (pageId: string, itemId: string) => apiFetch(`/link-pages/${pageId}/items/${itemId}`, { method: 'DELETE' }),
+};
+
+// Bot Rules
+export const botRulesApi = {
+    list: () => apiFetch('/bot-rules'),
+    create: (data: object) => apiFetch('/bot-rules', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: object) => apiFetch(`/bot-rules/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: (id: string) => apiFetch(`/bot-rules/${id}`, { method: 'DELETE' }),
+};
+

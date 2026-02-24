@@ -27,6 +27,9 @@ model User {
   socialAccounts SocialAccount[]
   posts          Post[]
   mediaFiles     MediaFile[]
+  series         Series[]
+  linkPages      LinkPage[]
+  botRules       BotRule[]
 }
 
 enum Role {
@@ -96,6 +99,92 @@ enum PostStatus {
   PUBLISHED
   FAILED
   CANCELLED
+  ARCHIVED
+}
+
+// ─────────────────────────────────────────────
+// Series (post grouping / cadence)
+// ─────────────────────────────────────────────
+
+model Series {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  cadence     String?  // e.g. "weekly", "daily"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// Link-in-Bio
+// ─────────────────────────────────────────────
+
+model LinkPage {
+  id          String     @id @default(cuid())
+  userId      String
+  slug        String     @unique
+  title       String
+  bio         String?
+  avatarUrl   String?
+  published   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       LinkItem[]
+  clicks      LinkClick[]
+}
+
+model LinkItem {
+  id          String     @id @default(cuid())
+  linkPageId  String
+  label       String
+  url         String
+  sortOrder   Int        @default(0)
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+
+  linkPage    LinkPage   @relation(fields: [linkPageId], references: [id], onDelete: Cascade)
+  clicks      LinkClick[]
+}
+
+model LinkClick {
+  id          String    @id @default(cuid())
+  linkPageId  String
+  linkItemId  String?
+  clickedAt   DateTime  @default(now())
+  ipHash      String?   // hashed for privacy
+
+  linkPage    LinkPage  @relation(fields: [linkPageId], references: [id], onDelete: Cascade)
+  linkItem    LinkItem? @relation(fields: [linkItemId], references: [id], onDelete: SetNull)
+}
+
+// ─────────────────────────────────────────────
+// Sales Bot Rules
+// ─────────────────────────────────────────────
+
+model BotRule {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  matchType   BotMatchType @default(CONTAINS)
+  matchValue  String
+  replyText   String
+  webhookUrl  String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum BotMatchType {
+  CONTAINS
+  REGEX
+  ANY
 }
 
 model PostPlatform {
