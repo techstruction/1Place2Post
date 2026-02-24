@@ -5,7 +5,16 @@ import {
     IsEnum,
     IsDateString,
 } from 'class-validator';
-import { PostStatus } from '@prisma/client';
+
+// Mirror of Prisma's PostStatus enum — avoids runtime null from @prisma/client
+export enum PostStatus {
+    DRAFT = 'DRAFT',
+    SCHEDULED = 'SCHEDULED',
+    PUBLISHING = 'PUBLISHING',
+    PUBLISHED = 'PUBLISHED',
+    FAILED = 'FAILED',
+    ARCHIVED = 'ARCHIVED',
+}
 
 export class CreatePostDto {
     @IsOptional()

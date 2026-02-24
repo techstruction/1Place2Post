@@ -47,13 +47,13 @@
 - [x] **VPS** Health checks passing — `{"status":"ok","env":"staging"}`
 
 ### Phase 1: MVP Core (Target: 4-6 hours)
-- [ ] Prisma schema defined and migrated
-- [ ] User authentication (register/login)
-- [ ] JWT middleware implemented
-- [ ] Post CRUD operations
-- [ ] Post scheduling (without publishing)
-- [ ] Frontend dashboard (migrated to Next.js)
-- [ ] Docker containers running Phase 1 services
+- [x] Prisma schema defined and migrated ✓ (done in Phase 0)
+- [x] User authentication (register/login) — bcrypt + JWT
+- [x] JWT middleware implemented — JwtStrategy + JwtAuthGuard
+- [x] Post CRUD operations — 5 routes, ownership checks
+- [x] Post scheduling (without publishing) — SCHEDULED status + scheduledAt field
+- [x] Frontend dashboard — Next.js with dark theme, login/register/posts pages
+- [ ] Docker containers running Phase 1 services — needs redeploy to staging
 - [ ] API tests pass
 
 ### Phase 1: MVP Core (Target: 4-6 hours)
@@ -130,7 +130,19 @@
 
 ## Recent Changes
 
-**2026-02-23** (VPS deployment):
+**2026-02-23** (Phase 1 MVP Core):
+- Installed: @nestjs/jwt, passport-jwt, bcrypt, class-validator, @nestjs/config
+- PrismaModule (global) + PrismaService
+- AuthModule: register/login with bcrypt, JwtStrategy, JwtAuthGuard
+- UserModule: findByEmail, findById
+- PostModule: full CRUD (5 routes, JWT-protected, ownership checks)
+- main.ts: global ValidationPipe + CORS for Next.js
+- Next.js: dark theme CSS design system, login, register, dashboard overview, posts list, new post form
+- lib/api.ts: typed fetch client with auto Bearer token
+- Both API and web builds pass (exit 0) ✅
+- Committed and pushed to origin/staging (commit 20f074b)
+
+
 - SSH key-based auth established (no password needed)
 - Code + env files rsynced to VPS at `~/apps/1place2post/`
 - Docker images built: `deploy-1p_api_st` (Node 18 + NestJS) and `deploy-1p_web_st` (Node 20 + Next.js)

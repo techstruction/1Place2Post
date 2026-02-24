@@ -1,5 +1,5 @@
 import { IsString, IsOptional, IsArray, IsEnum, IsDateString } from 'class-validator';
-import { PostStatus } from '@prisma/client';
+import { PostStatus } from './create-post.dto';
 
 export class UpdatePostDto {
     @IsOptional() @IsString() title?: string;

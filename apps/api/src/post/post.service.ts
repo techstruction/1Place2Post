@@ -1,11 +1,8 @@
-import {
-    Injectable,
-    NotFoundException,
-    ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PostStatus } from '@prisma/client';
 
 @Injectable()
 export class PostService {
@@ -18,7 +15,7 @@ export class PostService {
                 caption: dto.caption,
                 title: dto.title,
                 hashtags: dto.hashtags ?? [],
-                status: dto.status ?? 'DRAFT',
+                status: (dto.status as unknown as PostStatus) ?? PostStatus.DRAFT,
                 scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : null,
                 seriesId: dto.seriesId,
             },
@@ -44,19 +41,22 @@ export class PostService {
     }
 
     async update(userId: string, id: string, dto: UpdatePostDto) {
-        await this.findOne(userId, id); // ownership check
+        await this.findOne(userId, id);
         return this.prisma.post.update({
             where: { id },
             data: {
-                ...dto,
-                scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : undefined,
-                hashtags: dto.hashtags ?? undefined,
+                ...(dto.title !== undefined && { title: dto.title }),
+                ...(dto.caption !== undefined && { caption: dto.caption }),
+                ...(dto.hashtags !== undefined && { hashtags: dto.hashtags }),
+                ...(dto.status !== undefined && { status: dto.status as unknown as PostStatus }),
+                ...(dto.scheduledAt !== undefined && { scheduledAt: new Date(dto.scheduledAt) }),
+                ...(dto.seriesId !== undefined && { seriesId: dto.seriesId }),
             },
         });
     }
 
     async remove(userId: string, id: string) {
-        await this.findOne(userId, id); // ownership check
+        await this.findOne(userId, id);
         return this.prisma.post.delete({ where: { id } });
     }
 }
