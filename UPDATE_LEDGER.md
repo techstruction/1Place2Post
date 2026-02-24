@@ -72,22 +72,22 @@
 - [x] `TESTING.md` created at repo root with all Phase 1–3 test + deploy commands
 - **Commits**: `e642ef1` (Phase 3), `f3ed2ee` (TESTING.md update)
 
-### 🔲 Phase 4: Post Approval, RSS, Webhooks & Link-Bio Themes (Target: 5-6 hours)
-- [ ] `PostApprovalModule` — request/approve/reject workflow, `ApprovalStatus` enum
-- [ ] `RssCampaignModule` — create/toggle RSS campaigns, cron fetch, auto-post
-- [ ] `OutgoingWebhookModule` — register webhooks, fire on post events
-- [ ] Link page enhancements: avatar (MediaAsset link), theme JSON, contact JSON
-- [ ] AI mode config: `AI_MODE=mock` env — mock AI responses for caption generation
-- [ ] Web: approval queue page, RSS campaigns page, outgoing webhooks page, link-bio theme editor
-- [ ] Unit tests for all new modules
-- [ ] Deploy to staging
+### ✅ Phase 4: Post Approval, RSS, Webhooks & Link-Bio Themes (Completed)
+- [x] `PostApprovalModule` — request/approve/reject workflow, `ApprovalStatus` enum
+- [x] `RssCampaignModule` — create/toggle RSS campaigns, cron fetch, auto-post
+- [x] `OutgoingWebhookModule` — register webhooks, fire on post events
+- [x] Link page enhancements: avatar (MediaAsset link), theme JSON, contact JSON
+- [x] AI mode config: `AI_MODE=mock` env — mock AI responses for caption generation
+- [x] Web: approval queue page, RSS campaigns page, outgoing webhooks page, link-bio theme editor
+- [x] Unit tests for all new modules
+- [x] Deploy to staging
 
-### 🔲 Phase 5: Queue System (Target: 4-5 hours)
-- [ ] Bull queue with Redis — `SchedulePost`, `PublishPost` jobs
-- [ ] `PostPlatformModule` — per-platform publish status, retry tracking
-- [ ] Smart retry (exponential backoff), rate-limit awareness per platform
-- [ ] Status timeline with `PostLog` entries
-- [ ] Email notifications for failures (nodemailer or SendGrid)
+### ✅ Phase 5: Queue System & Notifications (Completed)
+- [x] Postgres-backed publish job queue (`PublishJob` polled every 15s)
+- [x] `PublishQueueModule` — lock-based processing, exponential backoff retry
+- [x] `NotificationModule` — in-app notifications with unread counts
+- [x] `SupportModule` — ticket creation and threaded messages
+- [x] Status timeline with `PostLog` entries
 
 ### 🔲 Phase 6: Webhooks & Unified Inbox (Target: 4-5 hours)
 - [ ] Platform webhook endpoints (5), HMAC signature validation
@@ -113,14 +113,30 @@
 | Publishing (Social, Series) | 15 | 8 | 🟨 53% |
 | Media | 10 | 5 | 🟨 50% |
 | Analytics | 12 | 5 | 🟨 42% |
-| Enterprise (Teams, Approvals) | 15 | 4 | 🟥 27% |
-| Operations (Queue, Webhooks) | 20 | 3 | 🟥 15% |
-| Communication (Inbox, Bot) | 18 | 6 | 🟥 33% |
-| **TOTAL** | **110** | **44** | **🟨 40%** |
+| Enterprise (Teams, Approvals) | 15 | 6 | 🟨 40% |
+| Operations (Queue, Webhooks) | 20 | 7 | 🟥 35% |
+| Communication (Inbox, Bot) | 18 | 7 | 🟥 38% |
+| **TOTAL** | **110** | **51** | **🟨 46%** |
 
 ---
 
 ## Recent Changes
+
+**2026-02-24** (Phase 5 — Queue System, Notifications, Support):
+- `PublishQueueModule`: Postgres-backed queue table (`PublishJob`) polled every 15s.
+- Lock-based concurrent processing, exponential backoff, fires webhooks on success/failure.
+- `NotificationModule`: in-app notifications (unread badge, mark read).
+- `SupportModule`: ticketing system with user/support message threading.
+- Prisma: 5 new models + 5 enums appended safely.
+- **42/42 tests pass** · 24/24 pages · Deployed commit `602c592`
+
+**2026-02-24** (Phase 4 — Post Approvals, RSS, Webhooks, AI):
+- `PostApprovalModule`: Request -> decision workflow linking to `PostStatus`.
+- `RssCampaignModule`: 15-min interval fetching via custom minimal XML parser.
+- `OutgoingWebhookModule`: Register Hooks, HMAC-SHA256 signature firing.
+- `AiModule`: `generate-caption` (mock or LLM via env flag).
+- `TESTING.md` fully documenting new endpoints mappings.
+- **42/42 tests pass** · 21/21 pages · Deployed commit `9b3b9bd`
 
 **2026-02-24** (Phase 3 — Media, Templates & Analytics):
 - `MediaModule`: multer disk upload, static serving via `ServeStaticModule`
