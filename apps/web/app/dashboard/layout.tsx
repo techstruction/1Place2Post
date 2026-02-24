@@ -21,6 +21,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/dashboard/ai-studio', label: '🤖 AI Studio' },
         { href: '/dashboard/analytics', label: '📈 Analytics' },
         { href: '/dashboard/jobs', label: '⚙️ Publish Queue' },
+        { href: '/dashboard/inbox', label: '📫 Unified Inbox' },
+        { href: '/dashboard/leads', label: '🎯 Leads Pipeline' },
         { href: '/dashboard/notifications', label: '🔔 Notifications' },
         { href: '/dashboard/approvals', label: '✅ Approvals' },
         { href: '/dashboard/rss-campaigns', label: '📡 RSS Campaigns' },

@@ -14,6 +14,9 @@ const mockPrisma = {
         update: jest.fn(),
         delete: jest.fn(),
     },
+    inboxMessage: { create: jest.fn().mockResolvedValue({ id: 'msg-1' }) },
+    botActionLog: { create: jest.fn() },
+    lead: { findFirst: jest.fn().mockResolvedValue(null), create: jest.fn() },
 };
 
 // Stub global fetch to avoid real HTTP calls
@@ -63,7 +66,7 @@ describe('BotRuleService', () => {
         it('does not fire webhook when webhookUrl is null', async () => {
             mockPrisma.botRule.findMany.mockResolvedValue([mockRule]); // webhookUrl: null
             const result = await service.processIngest(USER_ID, 'tell me about pricing', 'instagram');
-            expect(result.matched).toBe(false); // no webhook → no fire
+            expect(result.matched).toBe(true); // matches but no webhook fired
             expect(global.fetch).not.toHaveBeenCalled();
         });
     });

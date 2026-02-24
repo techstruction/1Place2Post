@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsEnum, IsNumber } from 'class-validator';
 
 export enum BotMatchType {
     CONTAINS = 'CONTAINS',
@@ -13,4 +13,9 @@ export class CreateBotRuleDto {
     @IsString() replyText: string;
     @IsOptional() @IsString() webhookUrl?: string;
     @IsOptional() @IsBoolean() active?: boolean;
+    @IsOptional() @IsString() triggerType?: string;
+    @IsOptional() @IsString() platform?: string;
+    @IsOptional() @IsString() socialAccountId?: string;
+    @IsOptional() @IsString() replyMode?: string;
+    @IsOptional() @IsNumber() cooldownSeconds?: number;
 }

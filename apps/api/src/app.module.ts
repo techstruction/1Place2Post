@@ -24,6 +24,8 @@ import { AiModule } from './ai/ai.module';
 import { NotificationModule } from './notification/notification.module';
 import { PublishQueueModule } from './publish-queue/publish-queue.module';
 import { SupportModule } from './support/support.module';
+import { InboxModule } from './inbox/inbox.module';
+import { LeadModule } from './lead/lead.module';
 
 @Module({
   imports: [
@@ -52,6 +54,8 @@ import { SupportModule } from './support/support.module';
     NotificationModule,
     PublishQueueModule,
     SupportModule,
+    InboxModule,
+    LeadModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

@@ -52,6 +52,28 @@ export const postsApi = {
         apiFetch(`/posts/${id}`, { method: 'DELETE' }),
 };
 
+// Support
+export const supportApi = {
+    list: () => apiFetch('/support'),
+    get: (id: string) => apiFetch(`/support/${id}`),
+    create: (data: { subject: string; message: string }) => apiFetch('/support', { method: 'POST', body: JSON.stringify(data) }),
+    reply: (id: string, data: { message: string }) => apiFetch(`/support/${id}/reply`, { method: 'POST', body: JSON.stringify(data) }),
+    close: (id: string) => apiFetch(`/support/${id}/close`, { method: 'PATCH' }),
+};
+
+// ── Inbox & Leads ────────────────────────────────────────────────────────
+export const inboxApi = {
+    list: () => apiFetch('/inbox'),
+    getUnreadCount: () => apiFetch('/inbox/unread-count'),
+    markRead: (id: string) => apiFetch(`/inbox/${id}/read`, { method: 'PATCH' }),
+    markAllRead: () => apiFetch('/inbox/read-all', { method: 'PATCH' }),
+};
+
+export const leadsApi = {
+    list: () => apiFetch('/leads'),
+    updateStatus: (id: string, status: string) => apiFetch(`/leads/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+};
+
 // Social Accounts
 export const socialApi = {
     list: () => apiFetch('/social-accounts'),

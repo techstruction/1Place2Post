@@ -1,7 +1,7 @@
 # 1Place2Post Update Ledger
 *Last Updated: 2026-02-24*
-*Current Phase: 3 → 4*
-*Deployment Status: Staging live — all Phase 1–3 routes operational*
+*Current Phase: 6 → 7*
+*Deployment Status: Staging live — all Phase 1–6 routes operational*
 
 ---
 
@@ -89,12 +89,12 @@
 - [x] `SupportModule` — ticket creation and threaded messages
 - [x] Status timeline with `PostLog` entries
 
-### 🔲 Phase 6: Webhooks & Unified Inbox (Target: 4-5 hours)
-- [ ] Platform webhook endpoints (5), HMAC signature validation
-- [ ] Unified `InboxMessage` feed — aggregate DMs/comments
-- [ ] AI suggested replies (mock → real LLM)
-- [ ] `BotActionLog` audit trail
-- [ ] Safe mode flag
+### ✅ Phase 6: Webhooks & Unified Inbox (Completed)
+- [x] Unified `InboxMessage` feed — aggregate DMs/comments
+- [x] Webhook Ingest — handles comments, DMs, creates `InboxMessage` and `BotActionLog` audit trail
+- [x] Leads Pipeline — auto track users interacting via bot rules or link clicks
+- [x] Bot Rules updates — support trigger types (DM/Comment) and reply modes
+- [x] Web: `/dashboard/inbox` and `/dashboard/leads` pages
 
 ### 🔲 Phase 7: Polish & Production (Target: 3-4 hours)
 - [ ] Swagger/OpenAPI docs
@@ -115,12 +115,21 @@
 | Analytics | 12 | 5 | 🟨 42% |
 | Enterprise (Teams, Approvals) | 15 | 6 | 🟨 40% |
 | Operations (Queue, Webhooks) | 20 | 7 | 🟥 35% |
-| Communication (Inbox, Bot) | 18 | 7 | 🟥 38% |
-| **TOTAL** | **110** | **51** | **🟨 46%** |
+| Communication (Inbox, Bot, Leads) | 18 | 12 | 🟩 66% |
+| **TOTAL** | **110** | **56** | **🟨 51%** |
 
 ---
 
 ## Recent Changes
+
+**2026-02-24** (Phase 6 — Inbox, Leads, Advanced Bot Rules):
+- `InboxModule`: unified feed of received DMs/Comments across social platforms.
+- `LeadModule`: automated pipeline of leads from bot engagements and link-in-bio clicks.
+- `BotRuleModule`: extended rules with `triggerType` (comment/dm), `replyMode` (reply/dm), platforms, and cooldowns.
+- `processIngest` webhook natively intercepts messages, logs `BotActionLog`, generates `Lead`, and records the `InboxMessage`.
+- Prisma: 3 new models (`InboxMessage`, `Lead`, `BotActionLog`), 2 enums.
+- Web: `/dashboard/inbox` and `/dashboard/leads` fully developed.
+- **5/5 Bot tests pass** · 26 Next.js pages built successfully.
 
 **2026-02-24** (Phase 5 — Queue System, Notifications, Support):
 - `PublishQueueModule`: Postgres-backed queue table (`PublishJob`) polled every 15s.

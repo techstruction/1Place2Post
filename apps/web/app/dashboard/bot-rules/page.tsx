@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { botRulesApi } from '../../../lib/api';
 
-type BotRule = { id: string; name: string; matchType: string; matchValue: string; replyText: string; webhookUrl: string | null; active: boolean; };
+type BotRule = { id: string; name: string; matchType: string; matchValue: string; replyText: string; webhookUrl: string | null; active: boolean; triggerType: string; platform: string | null; socialAccountId: string | null; replyMode: string; cooldownSeconds: number; };
 
 export default function BotRulesPage() {
     const router = useRouter();
     const [rules, setRules] = useState<BotRule[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreate, setShowCreate] = useState(false);
-    const [form, setForm] = useState({ name: '', matchType: 'CONTAINS', matchValue: '', replyText: '', webhookUrl: '' });
+    const [form, setForm] = useState({ name: '', matchType: 'CONTAINS', matchValue: '', replyText: '', webhookUrl: '', triggerType: 'comment', platform: '', socialAccountId: '', replyMode: 'reply', cooldownSeconds: 0 });
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
 
@@ -32,11 +32,16 @@ export default function BotRulesPage() {
                 matchValue: form.matchValue,
                 replyText: form.replyText,
                 webhookUrl: form.webhookUrl || undefined,
+                triggerType: form.triggerType,
+                platform: form.platform || undefined,
+                socialAccountId: form.socialAccountId || undefined,
+                replyMode: form.replyMode,
+                cooldownSeconds: Number(form.cooldownSeconds),
                 active: true,
             });
             setRules(prev => [rule, ...prev]);
             setShowCreate(false);
-            setForm({ name: '', matchType: 'CONTAINS', matchValue: '', replyText: '', webhookUrl: '' });
+            setForm({ name: '', matchType: 'CONTAINS', matchValue: '', replyText: '', webhookUrl: '', triggerType: 'comment', platform: '', socialAccountId: '', replyMode: 'reply', cooldownSeconds: 0 });
         } catch (err: any) { setError(err.message); }
         finally { setSaving(false); }
     }
@@ -70,6 +75,25 @@ export default function BotRulesPage() {
                             <label className="form-label">Rule Name *</label>
                             <input id="rule-name" className="form-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder='e.g. "Pricing reply"' />
                         </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                            <div className="form-group">
+                                <label className="form-label">Trigger Type</label>
+                                <select className="form-input" value={form.triggerType} onChange={e => setForm(f => ({ ...f, triggerType: e.target.value }))}>
+                                    <option value="comment">Comment</option>
+                                    <option value="dm">Direct Message (DM)</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Platform (Optional)</label>
+                                <select className="form-input" value={form.platform} onChange={e => setForm(f => ({ ...f, platform: e.target.value }))}>
+                                    <option value="">All Platforms</option>
+                                    <option value="INSTAGRAM">Instagram</option>
+                                    <option value="TIKTOK">TikTok</option>
+                                    <option value="FACEBOOK">Facebook</option>
+                                    <option value="TWITTER">Twitter/X</option>
+                                </select>
+                            </div>
+                        </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '0.75rem' }}>
                             <div className="form-group">
                                 <label className="form-label">Match Type</label>
@@ -84,9 +108,18 @@ export default function BotRulesPage() {
                                 <input id="rule-match-value" className="form-input" value={form.matchValue} onChange={e => setForm(f => ({ ...f, matchValue: e.target.value }))} placeholder='e.g. "pricing"' disabled={form.matchType === 'ANY'} />
                             </div>
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">Reply Text *</label>
-                            <textarea id="rule-reply" className="form-input" required value={form.replyText} onChange={e => setForm(f => ({ ...f, replyText: e.target.value }))} placeholder="Here are our prices…" />
+                        <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '0.75rem' }}>
+                            <div className="form-group">
+                                <label className="form-label">Reply Mode</label>
+                                <select className="form-input" value={form.replyMode} onChange={e => setForm(f => ({ ...f, replyMode: e.target.value }))}>
+                                    <option value="reply">Thread Reply</option>
+                                    <option value="dm">Send DM</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Reply Text *</label>
+                                <textarea id="rule-reply" className="form-input" required value={form.replyText} onChange={e => setForm(f => ({ ...f, replyText: e.target.value }))} placeholder="Here are our prices…" />
+                            </div>
                         </div>
                         <div className="form-group">
                             <label className="form-label">Webhook URL (optional)</label>
