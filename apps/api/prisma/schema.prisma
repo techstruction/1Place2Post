@@ -1,0 +1,147 @@
+// 1Place2Post Prisma Schema
+// Phase 0 → 1 core models: User, SocialAccount, Post, PostPlatform, MediaFile
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// Auth & Users
+// ─────────────────────────────────────────────
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  passwordHash   String
+  name           String?
+  avatarUrl      String?
+  role           Role            @default(USER)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  socialAccounts SocialAccount[]
+  posts          Post[]
+  mediaFiles     MediaFile[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ─────────────────────────────────────────────
+// Social Accounts (OAuth connections)
+// ─────────────────────────────────────────────
+
+model SocialAccount {
+  id            String    @id @default(cuid())
+  userId        String
+  platform      Platform
+  platformId    String    // platform's user/page ID
+  username      String?
+  displayName   String?
+  accessToken   String
+  refreshToken  String?
+  tokenExpiry   DateTime?
+  scopes        String[]
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postPlatforms PostPlatform[]
+
+  @@unique([userId, platform, platformId])
+}
+
+enum Platform {
+  INSTAGRAM
+  TIKTOK
+  FACEBOOK
+  YOUTUBE
+  TWITTER
+}
+
+// ─────────────────────────────────────────────
+// Posts & Scheduling
+// ─────────────────────────────────────────────
+
+model Post {
+  id           String         @id @default(cuid())
+  userId       String
+  title        String?
+  caption      String
+  hashtags     String[]
+  status       PostStatus     @default(DRAFT)
+  scheduledAt  DateTime?
+  publishedAt  DateTime?
+  seriesId     String?        // optional grouping for series
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platforms     PostPlatform[]
+  mediaFiles    PostMedia[]
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+model PostPlatform {
+  id              String        @id @default(cuid())
+  postId          String
+  socialAccountId String
+  status          PostStatus    @default(DRAFT)
+  platformPostId  String?       // ID returned by the platform after publish
+  publishedAt     DateTime?
+  errorMessage    String?
+  retryCount      Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  post            Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, socialAccountId])
+}
+
+// ─────────────────────────────────────────────
+// Media Library
+// ─────────────────────────────────────────────
+
+model MediaFile {
+  id          String      @id @default(cuid())
+  userId      String
+  filename    String
+  mimeType    String
+  sizeBytes   Int
+  url         String      // storage URL (local or cloud)
+  tags        String[]
+  createdAt   DateTime    @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts       PostMedia[]
+}
+
+model PostMedia {
+  id          String    @id @default(cuid())
+  postId      String
+  mediaFileId String
+  sortOrder   Int       @default(0)
+
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  mediaFile   MediaFile @relation(fields: [mediaFileId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, mediaFileId])
+}

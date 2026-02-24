@@ -4,11 +4,19 @@ services:
     build:
       context: ../apps/api
       dockerfile: Dockerfile
+    env_file:
+      - ../.env.prod
     environment:
       - NODE_ENV=production
       - APP_ENV=prod
       - PORT=35763
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:35763/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     networks:
       - proxy
 
@@ -17,10 +25,13 @@ services:
     build:
       context: ../apps/web
       dockerfile: Dockerfile
+    env_file:
+      - ../.env.prod
     environment:
       - NODE_ENV=production
     depends_on:
-      - 1p_api_prod
+      1p_api_prod:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - proxy

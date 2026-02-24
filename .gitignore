@@ -7,3 +7,17 @@ build/
 coverage/
 *.log
 .vscode/
+
+# Temporary files
+.tmp/
+
+# Google OAuth credentials (never commit)
+credentials.json
+token.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Next.js build output
+.next/
