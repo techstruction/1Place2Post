@@ -1,8 +1,7 @@
-import { Controller, Get, Patch, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { LeadService } from './lead.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { LeadStatus } from '@prisma/client';
-import { z } from 'zod';
 
 @Controller('leads')
 @UseGuards(JwtAuthGuard)
@@ -20,10 +19,9 @@ export class LeadController {
         @Param('id') id: string,
         @Body() body: { status: string }
     ) {
-        const schema = z.object({
-            status: z.nativeEnum(LeadStatus),
-        });
-        const input = schema.parse(body);
-        return this.service.updateStatus(req.user.id, id, input.status);
+        if (!Object.values(LeadStatus).includes(body.status as LeadStatus)) {
+            throw new BadRequestException('Invalid lead status');
+        }
+        return this.service.updateStatus(req.user.id, id, body.status as LeadStatus);
     }
 }
