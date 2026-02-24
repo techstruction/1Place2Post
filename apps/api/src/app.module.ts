@@ -21,6 +21,9 @@ import { PostApprovalModule } from './post-approval/post-approval.module';
 import { RssCampaignModule } from './rss-campaign/rss-campaign.module';
 import { OutgoingWebhookModule } from './outgoing-webhook/outgoing-webhook.module';
 import { AiModule } from './ai/ai.module';
+import { NotificationModule } from './notification/notification.module';
+import { PublishQueueModule } from './publish-queue/publish-queue.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
   imports: [
@@ -46,6 +49,9 @@ import { AiModule } from './ai/ai.module';
     RssCampaignModule,
     OutgoingWebhookModule,
     AiModule,
+    NotificationModule,
+    PublishQueueModule,
+    SupportModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

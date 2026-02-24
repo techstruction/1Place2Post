@@ -20,13 +20,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/dashboard/templates', label: '📋 Templates' },
         { href: '/dashboard/ai-studio', label: '🤖 AI Studio' },
         { href: '/dashboard/analytics', label: '📈 Analytics' },
+        { href: '/dashboard/jobs', label: '⚙️ Publish Queue' },
+        { href: '/dashboard/notifications', label: '🔔 Notifications' },
         { href: '/dashboard/approvals', label: '✅ Approvals' },
         { href: '/dashboard/rss-campaigns', label: '📡 RSS Campaigns' },
-        { href: '/dashboard/outgoing-webhooks', label: '🔔 Webhooks' },
+        { href: '/dashboard/outgoing-webhooks', label: '📤 Webhooks' },
         { href: '/dashboard/connections', label: '🔗 Connections' },
         { href: '/dashboard/link-pages', label: '🌐 Link Pages' },
         { href: '/dashboard/bot-rules', label: '🤖 Bot Rules' },
         { href: '/dashboard/team', label: '👥 Team' },
+        { href: '/dashboard/support', label: '🎫 Support' },
     ];
 
     return (

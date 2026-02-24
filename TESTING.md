@@ -329,3 +329,62 @@ docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/ai/generate-cap
   -d '{"topic":"our new fitness app launch","platform":"INSTAGRAM","tone":"casual"}'
 # Expected: {"caption":"...","hashtags":["#...",...],"mode":"mock"}
 ```
+
+---
+
+## Phase 5 — Publish Queue, Notifications, Support
+
+### Publish Queue
+```bash
+# Enqueue a scheduled post manually
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/jobs/publish/$POST_ID \
+  -H "Authorization: Bearer $TOKEN"
+
+# Cancel a pending/retry job
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/jobs/cancel/$POST_ID \
+  -H "Authorization: Bearer $TOKEN"
+
+# List jobs
+docker exec 1p_api_st curl -s http://localhost:35764/api/jobs \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Notifications
+```bash
+# List notifications
+docker exec 1p_api_st curl -s http://localhost:35764/api/notifications \
+  -H "Authorization: Bearer $TOKEN"
+
+# Mark one read
+docker exec 1p_api_st curl -s -X PATCH http://localhost:35764/api/notifications/$NOTIF_ID/read \
+  -H "Authorization: Bearer $TOKEN"
+
+# Mark all read
+docker exec 1p_api_st curl -s -X PATCH http://localhost:35764/api/notifications/read-all \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Support Tickets
+```bash
+# Create ticket
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/support/tickets \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
+  -d '{"subject":"How to publish?","message":"I am having trouble scheduling my post."}'
+
+# List tickets
+docker exec 1p_api_st curl -s http://localhost:35764/api/support/tickets \
+  -H "Authorization: Bearer $TOKEN"
+
+# Get ticket thread
+docker exec 1p_api_st curl -s http://localhost:35764/api/support/tickets/$TICKET_ID \
+  -H "Authorization: Bearer $TOKEN"
+
+# Add message to ticket
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/support/tickets/$TICKET_ID/messages \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
+  -d '{"message":"Nevermind, figured it out!"}'
+
+# Close ticket
+docker exec 1p_api_st curl -s -X PATCH http://localhost:35764/api/support/tickets/$TICKET_ID/close \
+  -H "Authorization: Bearer $TOKEN"
+```
