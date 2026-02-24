@@ -17,6 +17,10 @@ import { MediaModule } from './media/media.module';
 import { TemplateModule } from './template/template.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { TeamModule } from './team/team.module';
+import { PostApprovalModule } from './post-approval/post-approval.module';
+import { RssCampaignModule } from './rss-campaign/rss-campaign.module';
+import { OutgoingWebhookModule } from './outgoing-webhook/outgoing-webhook.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -38,6 +42,10 @@ import { TeamModule } from './team/team.module';
     TemplateModule,
     AnalyticsModule,
     TeamModule,
+    PostApprovalModule,
+    RssCampaignModule,
+    OutgoingWebhookModule,
+    AiModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

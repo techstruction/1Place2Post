@@ -4,6 +4,14 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { postsApi } from '../../../../lib/api';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:35763/api';
+function getToken() { return typeof window !== 'undefined' ? localStorage.getItem('1p2p_token') : null; }
+function authFetch(path: string, opts: RequestInit = {}) {
+    return fetch(`${API_BASE}${path}`, { ...opts, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` } });
+}
+
+const APPROVAL_BADGE: Record<string, string> = { REQUESTED: 'badge-scheduled', APPROVED: 'badge-published', REJECTED: 'badge-draft' };
+
 export default function EditPostPage() {
     const router = useRouter();
     const params = useParams();
@@ -12,9 +20,11 @@ export default function EditPostPage() {
     const [hashtags, setHashtags] = useState('');
     const [scheduledAt, setScheduledAt] = useState('');
     const [status, setStatus] = useState('DRAFT');
+    const [approval, setApproval] = useState<{ status: string } | null>(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [requesting, setRequesting] = useState(false);
 
     useEffect(() => {
         postsApi.get(id)
@@ -22,6 +32,7 @@ export default function EditPostPage() {
                 setCaption(post.caption);
                 setHashtags((post.hashtags || []).join(' '));
                 setStatus(post.status);
+                setApproval(post.approval ?? null);
                 if (post.scheduledAt) {
                     const d = new Date(post.scheduledAt);
                     setScheduledAt(d.toISOString().slice(0, 16));
@@ -50,6 +61,20 @@ export default function EditPostPage() {
         }
     }
 
+    async function requestApproval() {
+        setRequesting(true);
+        try {
+            const res = await authFetch(`/posts/${id}/request-approval`, { method: 'POST' });
+            if (!res.ok) throw new Error((await res.json()).message);
+            setStatus('PENDING_APPROVAL');
+            setApproval({ status: 'REQUESTED' });
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setRequesting(false);
+        }
+    }
+
     if (loading) return <div style={{ color: 'var(--text-dim)', padding: '2rem' }}>Loading…</div>;
 
     return (
@@ -61,6 +86,15 @@ export default function EditPostPage() {
 
             <div className="card" style={{ maxWidth: 680 }}>
                 {error && <div className="alert-error">{error}</div>}
+
+                {/* Approval status banner */}
+                {approval && (
+                    <div style={{ background: 'var(--bg-input)', borderRadius: 8, padding: '0.6rem 0.9rem', marginBottom: '1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span>Approval status:</span>
+                        <span className={`badge ${APPROVAL_BADGE[approval.status] ?? 'badge-draft'}`}>{approval.status}</span>
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label className="form-label">Caption *</label>
@@ -88,10 +122,15 @@ export default function EditPostPage() {
                             </select>
                         </div>
                     )}
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                         <button id="save-post-btn" type="submit" className="btn btn-primary" disabled={saving}>
                             {saving ? 'Saving…' : '💾 Save Changes'}
                         </button>
+                        {status === 'DRAFT' && !approval && (
+                            <button id="request-approval-btn" type="button" className="btn btn-ghost" disabled={requesting} onClick={requestApproval}>
+                                {requesting ? 'Requesting…' : '✅ Request Approval'}
+                            </button>
+                        )}
                         <Link href="/dashboard/posts" className="btn btn-ghost">Cancel</Link>
                     </div>
                 </form>
