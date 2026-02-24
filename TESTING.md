@@ -268,3 +268,64 @@ docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/teams/members \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"email":"colleague@example.com"}'
 ```
+
+---
+
+## Phase 4 — Post Approvals, RSS Campaigns, Outgoing Webhooks, AI Studio
+
+### Post Approvals
+```bash
+TOKEN=<your-token>
+POST_ID=<post-id>
+
+# Request approval (post must be DRAFT)
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/posts/$POST_ID/request-approval \
+  -H "Authorization: Bearer $TOKEN"
+
+# List pending approvals
+docker exec 1p_api_st curl -s http://localhost:35764/api/approvals/pending \
+  -H "Authorization: Bearer $TOKEN"
+
+# Decide (approve or reject)
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/approvals/$APPROVAL_ID/decide \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
+  -d '{"decision":"APPROVED","reason":"Looks great!"}'
+```
+
+### RSS Campaigns
+```bash
+# Create campaign
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/rss-campaigns \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
+  -d '{"name":"Tech News","rssUrl":"https://feeds.feedburner.com/TechCrunch"}'
+
+# List campaigns
+docker exec 1p_api_st curl -s http://localhost:35764/api/rss-campaigns \
+  -H "Authorization: Bearer $TOKEN"
+
+# Toggle active state
+docker exec 1p_api_st curl -s -X PATCH http://localhost:35764/api/rss-campaigns/$ID \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
+  -d '{"isActive":false}'
+```
+
+### Outgoing Webhooks
+```bash
+# Register webhook
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/outgoing-webhooks \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
+  -d '{"name":"My Endpoint","url":"https://example.com/hook","events":["post.scheduled","post.approved"]}'
+
+# List webhooks
+docker exec 1p_api_st curl -s http://localhost:35764/api/outgoing-webhooks \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### AI Caption Generation (Mock Mode)
+```bash
+# Generate caption (mock mode by default)
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/ai/generate-caption \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
+  -d '{"topic":"our new fitness app launch","platform":"INSTAGRAM","tone":"casual"}'
+# Expected: {"caption":"...","hashtags":["#...",...],"mode":"mock"}
+```
