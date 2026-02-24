@@ -22,9 +22,13 @@ npx jest --testPathPatterns="auth.service.spec|post.service.spec" --no-coverage
 cd apps/api
 npx jest --testPathPatterns="link-page.service.spec|bot-rule.service.spec" --no-coverage
 
-# All Phase 1 + Phase 2 suites together
+# Phase 3 — Analytics + Templates
 cd apps/api
-npx jest --testPathPatterns="auth.service.spec|post.service.spec|link-page.service.spec|bot-rule.service.spec" --no-coverage
+npx jest --testPathPatterns="analytics.service.spec|template.service.spec" --no-coverage
+
+# All suites (Phases 1–3)
+cd apps/api
+npx jest --testPathPatterns="auth.service.spec|post.service.spec|link-page.service.spec|bot-rule.service.spec|analytics.service.spec|template.service.spec" --no-coverage
 ```
 
 ---
@@ -193,3 +197,74 @@ ssh ubuntu-vm "docker ps --filter name=1p_api_st --format '{{.Names}} {{.Status}
 - `DATABASE_URL` in `.env.staging` on VPS uses `172.27.0.1:5432` (Docker bridge gateway to host postgres)
 - The `?schema=public` suffix in `DATABASE_URL` must be **stripped** when using `psql` directly
 - Port `35764` = API inside Docker (from `.env.staging`); `35763` = default dev port
+
+---
+
+## Phase 3 — Media, Templates, Analytics, Teams
+
+### Media Upload & Library
+```bash
+# Upload a file (from VPS host, via public staging URL)
+curl -sS -X POST "https://1place2post-st.techstruction.co/api/media/upload" \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@/path/to/image.jpg"
+# Expected: {"id":"...","urlPath":"/uploads/12345-image.jpg",...}
+
+# List media assets
+docker exec 1p_api_st curl -s http://localhost:35764/api/media \
+  -H "Authorization: Bearer $TOKEN"
+
+# Delete a media asset
+docker exec 1p_api_st curl -s -X DELETE http://localhost:35764/api/media/$MEDIA_ID \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Templates
+```bash
+# Create a template
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/templates \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"name":"Product Launch","content":"Excited to share our new product!","hashtags":["#launch","#product"]}'
+
+# Apply template (returns pre-filled post shape)
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/templates/$TMPL_ID/apply \
+  -H "Authorization: Bearer $TOKEN"
+# Expected: {"caption":"Excited to share...","hashtags":["#launch","#product"],"status":"DRAFT","templateId":"..."}
+```
+
+### Analytics Events
+```bash
+# Record an engagement event manually
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/analytics/events \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"platform":"INSTAGRAM","metric":"LIKES","value":150}'
+
+# Get summary (totals + per-platform)
+docker exec 1p_api_st curl -s http://localhost:35764/api/analytics/summary \
+  -H "Authorization: Bearer $TOKEN"
+
+# Get timeline (last 30 days, grouped by day)
+docker exec 1p_api_st curl -s "http://localhost:35764/api/analytics/timeline?days=30" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Teams
+```bash
+# Create a team
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/teams \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"name":"My Agency"}'
+
+# Get my team
+docker exec 1p_api_st curl -s http://localhost:35764/api/teams/mine \
+  -H "Authorization: Bearer $TOKEN"
+
+# Invite a member by email
+docker exec 1p_api_st curl -s -X POST http://localhost:35764/api/teams/members \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"email":"colleague@example.com"}'
+```
