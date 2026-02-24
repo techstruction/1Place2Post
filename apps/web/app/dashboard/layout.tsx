@@ -29,9 +29,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/dashboard/outgoing-webhooks', label: '📤 Webhooks' },
         { href: '/dashboard/connections', label: '🔗 Connections' },
         { href: '/dashboard/link-pages', label: '🌐 Link Pages' },
-        { href: '/dashboard/bot-rules', label: '🤖 Bot Rules' },
+        { href: '/dashboard/bots', label: '🤖 Bot Rules' },
         { href: '/dashboard/team', label: '👥 Team' },
         { href: '/dashboard/support', label: '🎫 Support' },
+        { href: '/docs/user', label: '📖 Documentation' },
     ];
 
     return (
