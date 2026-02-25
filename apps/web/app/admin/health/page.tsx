@@ -23,10 +23,19 @@ function HealthBadge({ ok }: { ok: boolean }) {
 export default function AdminHealthPage() {
     const [health, setHealth] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<boolean>(false);
 
     function refresh() {
         setLoading(true);
-        adminFetch('/admin/health').then(r => r.json()).then(setHealth).finally(() => setLoading(false));
+        setError(false);
+        adminFetch('/admin/health')
+            .then(async (r) => {
+                if (!r.ok) throw new Error('Health check failed');
+                const data = await r.json();
+                setHealth(data);
+            })
+            .catch(() => setError(true))
+            .finally(() => setLoading(false));
     }
 
     useEffect(() => { refresh(); }, []);
@@ -62,7 +71,7 @@ export default function AdminHealthPage() {
                             <div style={{ fontWeight: 600, color: 'var(--color-heading)' }}>{row.label}</div>
                             <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>{row.detail}</div>
                         </div>
-                        {loading ? <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Checking…</span> : <HealthBadge ok={row.ok} />}
+                        {loading ? <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Checking…</span> : <HealthBadge ok={!error && row.ok} />}
                     </div>
                 ))}
             </div>

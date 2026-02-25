@@ -14,16 +14,33 @@ const ROLE_COLORS: Record<string, string> = { ADMIN: '#6f42c1', USER: '#059669' 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState('');
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
     useEffect(() => {
-        adminFetch('/admin/users').then(r => r.json()).then(setUsers).finally(() => setLoading(false));
+        adminFetch('/admin/users')
+            .then(async (r) => {
+                if (!r.ok) {
+                    if (r.status === 401 || r.status === 403) throw new Error('Unauthorized or Session Expired');
+                    throw new Error('Failed to load users');
+                }
+                const data = await r.json();
+                if (Array.isArray(data)) setUsers(data);
+                else throw new Error('Invalid users data payload');
+            })
+            .catch(e => setError(e.message))
+            .finally(() => setLoading(false));
     }, []);
 
     async function changeRole(id: string, role: string) {
-        await adminFetch(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) });
-        setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u));
+        try {
+            const res = await adminFetch(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) });
+            if (!res.ok) throw new Error('Failed to update role');
+            setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u));
+        } catch (e: any) {
+            alert(e.message);
+        }
     }
 
     async function deleteUser(id: string) {
@@ -59,6 +76,11 @@ export default function AdminUsersPage() {
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
                 {loading ? (
                     <p style={{ padding: '1.5rem', color: 'var(--text-dim)' }}>Loading users…</p>
+                ) : error ? (
+                    <div style={{ padding: '1.5rem' }}>
+                        <p style={{ color: '#dc2626', marginBottom: '1rem' }}>{error}</p>
+                        <button className="btn btn-outline" onClick={() => window.location.reload()}>Retry</button>
+                    </div>
                 ) : (
                     <div className="table-wrap">
                         <table>
