@@ -12,7 +12,7 @@ services:
       - PORT=35764
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:35764/api/health"]
+      test: [ "CMD", "wget", "-qO-", "http://localhost:35764/api/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -25,6 +25,8 @@ services:
     build:
       context: ../apps/web
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://1place2post-st.techstruction.co/api
     env_file:
       - ../.env.staging
     environment:

@@ -97,6 +97,8 @@
 - [x] Web: `/dashboard/inbox` and `/dashboard/leads` pages
 
 ### 🔲 Phase 7: Polish & Production (Target: 3-4 hours)
+- [x] Detailed User's Manual (`/docs/user`)
+- [x] Detailed Administrator Guide (`/docs/admin`)
 - [ ] Swagger/OpenAPI docs
 - [ ] Rate limiting (throttler guard)
 - [ ] Security audit
@@ -121,6 +123,12 @@
 ---
 
 ## Recent Changes
+
+**2026-02-24** (Phase 7 — Interactive Documentation):
+- Added exhaustive `USER_MANUAL.md` and `ADMIN_GUIDE.md` documents.
+- Built interactive viewer inside Next.js (`/docs/user` & `/docs/admin`) using `react-markdown` and `remark-gfm` for full navigation, tables, and anchor parsing.
+- Integrated `📖 Documentation` directly into the Dashboard Sidebar.
+- Deployed successfully to the staging VPS.
 
 **2026-02-24** (Phase 6 — Inbox, Leads, Advanced Bot Rules):
 - `InboxModule`: unified feed of received DMs/Comments across social platforms.
