@@ -27,7 +27,7 @@ export class AuthService {
             data: { email: dto.email, passwordHash, name: dto.name },
         });
 
-        return this.signToken(user.id, user.email);
+        return this.signToken(user.id, user.email, user.role);
     }
 
     async login(dto: LoginDto) {
@@ -35,18 +35,32 @@ export class AuthService {
             where: { email: dto.email },
         });
         if (!user) throw new UnauthorizedException('Invalid credentials');
+        if (!user.passwordHash) throw new UnauthorizedException('Please login with Google.');
 
         const valid = await bcrypt.compare(dto.password, user.passwordHash);
         if (!valid) throw new UnauthorizedException('Invalid credentials');
 
-        return this.signToken(user.id, user.email);
+        return this.signToken(user.id, user.email, user.role);
     }
 
-    private signToken(userId: string, email: string) {
-        const payload = { sub: userId, email };
+    async validateOAuthUser(email: string, name?: string, avatarUrl?: string) {
+        let user = await this.prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            user = await this.prisma.user.create({
+                data: { email, name, avatarUrl, passwordHash: null },
+            });
+        } else if (!user.avatarUrl && avatarUrl) {
+            // Optimistically update avatar if provided
+            user = await this.prisma.user.update({ where: { id: user.id }, data: { avatarUrl } });
+        }
+        return this.signToken(user.id, user.email, user.role);
+    }
+
+    private signToken(userId: string, email: string, role?: string) {
+        const payload = { sub: userId, email, role: role || 'USER' };
         return {
             access_token: this.jwt.sign(payload),
-            user: { id: userId, email },
+            user: { id: userId, email, role: role || 'USER' },
         };
     }
 }

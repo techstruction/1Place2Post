@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authApi, setToken } from '../../lib/api';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:35763/api';
+
 export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState('');
@@ -49,6 +51,17 @@ export default function LoginPage() {
                         {loading ? 'Signing in…' : 'Sign in'}
                     </button>
                 </form>
+
+                <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0' }}>
+                    <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }}></div>
+                    <span style={{ padding: '0 0.75rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>or</span>
+                    <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }}></div>
+                </div>
+
+                <a href={`${API_URL}/auth/google`} className="btn btn-full" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', backgroundColor: 'white', color: '#333', border: '1px solid #d1d5db', transition: 'background-color 0.2s', textDecoration: 'none', fontWeight: 600 }}>
+                    <img src="https://www.google.com/favicon.ico" alt="Google" style={{ width: 18, height: 18 }} />
+                    Continue with Google
+                </a>
 
                 <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
                     No account? <Link href="/register">Sign up</Link>
