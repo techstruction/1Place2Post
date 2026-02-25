@@ -58,21 +58,32 @@ This document outlines the strategic progression of features from the initial in
 
 ## 🟡 Upcoming Milestones
 
-### Phase 9: Scale & Optimization
+### Phase 9: Testing Stage I
+- [ ] **Unit & Integration Setup**: Scaffold the test environment and seed database accounts. Establish API validation for all endpoints.
+- [ ] **Functional & UI Tests**: Develop E2E Playwright tests including `create-post.spec.ts` and automated visual regression checks.
+- [ ] **Specialized Features Q/A**: Build validation tests around RSS parsing, Bot Rules engine accuracy, and Link-in-Bio routing.
+- [ ] **Security Audits**: Preliminary fuzzing of the API, testing JWT scope limitations and OAuth integrity.
+
+### Phase 10: Scale & Optimization
 - [ ] **Rate Limiting Engine**: Implement NestJS Throttler guards to protect public-facing endpoints (e.g. tracking links, authentication).
 - [ ] **Storage Migration**: Migrate local `uploads/` disk storage to cloud-based S3/R2 object storage for distributed horizontal scaling.
 - [ ] **Redis Integration**: Move current Postgres-backed queue system to a dedicated Redis cluster (BullMQ) for high-throughput job processing and WebSocket pub/sub.
 
-### Phase 10: AI Agents & Advanced Automations
+### Phase 11: AI Agents & Advanced Automations
 - [ ] **LLM Integration**: Expand "AI Studio" beyond basic templates to analyze incoming DMs and auto-generate contextually aware replies using OpenAI/Anthropic APIs.
 - [ ] **Sentiment Analysis**: Automatically flag and route angry or urgent inbox messages directly to the Support module.
 - [ ] **Smart Scheduling**: Machine learning algorithms to suggest optimal posting times based on historical user engagement metrics.
 
-### Phase 11: Enterprise Identity
+### Phase 12: Enterprise Identity
 - [ ] SAML / SSO Integration (Okta/Entra ID) for enterprise team clients.
 - [ ] Granular Custom Permissions (beyond static Owner/Admin/Member).
 - [ ] Two-Factor Authentication (2FA) enforcement.
 
-### Phase 12: External Ecosystem
+### Phase 13: External Ecosystem
 - [ ] **Public Developer API**: Interactive Swagger/OpenAPI documentation allowing customers to build custom integrations.
 - [ ] **Mobile App**: React Native or Flutter application bringing the Unified Inbox and Push Notifications natively to iOS/Android.
+
+### Phase 14: Testing Stage II
+- [ ] **Performance & Stress Testing**: Implement Load testing (e.g. JMeter/k6) simulating 100+ concurrent bulk scheduling actions.
+- [ ] **Rate Limiting Engine Q/A**: Verify infrastructure gracefully handles 429 API errors from Social platforms without crashing the worker queues.
+- [ ] **Redundancy & Failover**: Chaos engineering tests on the Redis job queue and Postgres database failovers.
