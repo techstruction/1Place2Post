@@ -1,7 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { leadsApi } from '../../../lib/api';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:35763/api';
+function getToken() { return typeof window !== 'undefined' ? localStorage.getItem('1p2p_token') : null; }
+function authFetch(path: string, opts: RequestInit = {}) {
+    return fetch(`${API_BASE}${path}`, { ...opts, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` } });
+}
 
 type Lead = {
     id: string;
@@ -15,26 +20,32 @@ export default function LeadsPage() {
     const router = useRouter();
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     async function loadData() {
+        setError(null);
         try {
-            const data = await leadsApi.list();
-            setLeads(data);
-        } catch (err) {
-            router.push('/login');
+            const res = await authFetch('/leads');
+            if (res.status === 401) { router.push('/login'); return; }
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            setLeads(await res.json());
+        } catch (err: any) {
+            setError(err.message || 'Failed to load leads');
         } finally {
             setLoading(false);
         }
     }
 
-    useEffect(() => {
-        loadData();
-    }, [router]);
+    useEffect(() => { loadData(); }, []);
 
     async function handleStatusChange(id: string, status: string) {
-        await leadsApi.updateStatus(id, status);
-        setLeads(prev => prev.map(l => l.id === id ? { ...l, status: status as any } : l));
+        try {
+            const res = await authFetch(`/leads/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+            if (res.ok) setLeads(prev => prev.map(l => l.id === id ? { ...l, status: status as any } : l));
+        } catch { /* silent */ }
     }
+
+    if (loading) return <div className="card"><p style={{ color: 'var(--text-dim)' }}>Loading leads…</p></div>;
 
     return (
         <div className="leads-page">
@@ -45,10 +56,15 @@ export default function LeadsPage() {
                 </p>
             </div>
 
+            {error && (
+                <div className="card" style={{ padding: '1.5rem', border: '1px solid var(--color-danger, #e53e3e)', marginBottom: '1rem' }}>
+                    <p style={{ color: 'var(--color-danger, #e53e3e)', margin: 0 }}>⚠️ {error}</p>
+                    <button className="btn btn-ghost" style={{ marginTop: '0.8rem', fontSize: '0.85rem' }} onClick={loadData}>Retry</button>
+                </div>
+            )}
+
             <div className="card">
-                {loading ? (
-                    <p style={{ color: 'var(--text-dim)' }}>Loading leads...</p>
-                ) : leads.length === 0 ? (
+                {leads.length === 0 ? (
                     <div className="empty">
                         <h3>No leads yet</h3>
                         <p>Bot rules catching handles or link clicks will appear here.</p>

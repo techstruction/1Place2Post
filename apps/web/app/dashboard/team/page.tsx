@@ -20,14 +20,25 @@ export default function TeamPage() {
     const [teamName, setTeamName] = useState('');
     const [inviteEmail, setInviteEmail] = useState('');
     const [error, setError] = useState('');
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
 
-    useEffect(() => {
-        authFetch('/teams/mine').then(r => r.ok ? r.json() : null)
-            .then(setTeam)
-            .catch(() => router.push('/login'))
-            .finally(() => setLoading(false));
-    }, [router]);
+    async function loadData() {
+        setLoadError(null);
+        try {
+            const res = await authFetch('/teams/mine');
+            if (res.status === 401) { router.push('/login'); return; }
+            if (res.status === 404) { setTeam(null); return; } // no team yet — that's fine
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            setTeam(await res.json());
+        } catch (err: any) {
+            setLoadError(err.message || 'Failed to load team');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => { loadData(); }, []);
 
     async function createTeam(e: React.FormEvent) {
         e.preventDefault();

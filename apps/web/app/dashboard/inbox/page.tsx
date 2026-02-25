@@ -17,49 +17,62 @@ export default function InboxPage() {
     const router = useRouter();
     const [messages, setMessages] = useState<InboxMessage[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     async function loadData() {
+        setError(null);
         try {
-            const data = await inboxApi.list();
-            setMessages(data);
-        } catch (err) {
-            router.push('/login');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:35763/api'}/inbox`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('1p2p_token')}` },
+            });
+            if (res.status === 401) { router.push('/login'); return; }
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            setMessages(await res.json());
+        } catch (err: any) {
+            setError(err.message || 'Failed to load inbox');
         } finally {
             setLoading(false);
         }
     }
 
-    useEffect(() => {
-        loadData();
-    }, [router]);
+    useEffect(() => { loadData(); }, []);
 
     async function handleMarkRead(id: string) {
-        await inboxApi.markRead(id);
-        setMessages(prev => prev.map(m => m.id === id ? { ...m, isRead: true } : m));
+        try {
+            await inboxApi.markRead(id);
+            setMessages(prev => prev.map(m => m.id === id ? { ...m, isRead: true } : m));
+        } catch { /* silent — already marked */ }
     }
 
     async function handleMarkAllRead() {
-        await inboxApi.markAllRead();
-        setMessages(prev => prev.map(m => ({ ...m, isRead: true })));
+        try {
+            await inboxApi.markAllRead();
+            setMessages(prev => prev.map(m => ({ ...m, isRead: true })));
+        } catch { /* silent */ }
     }
 
     const unreadCount = messages.filter(m => !m.isRead).length;
+
+    if (loading) return <div className="card"><p style={{ color: 'var(--text-dim)' }}>Loading inbox…</p></div>;
 
     return (
         <div className="inbox-page">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h1 className="page-title">Unified Inbox {unreadCount > 0 && <span className="badge badge-brand" style={{ marginLeft: '0.8rem' }}>{unreadCount} new</span>}</h1>
                 {unreadCount > 0 && (
-                    <button className="btn btn-ghost" onClick={handleMarkAllRead}>
-                        ✓ Mark All as Read
-                    </button>
+                    <button className="btn btn-ghost" onClick={handleMarkAllRead}>✓ Mark All as Read</button>
                 )}
             </div>
 
+            {error && (
+                <div className="card" style={{ padding: '1.5rem', border: '1px solid var(--color-danger, #e53e3e)', marginBottom: '1rem' }}>
+                    <p style={{ color: 'var(--color-danger, #e53e3e)', margin: 0 }}>⚠️ {error}</p>
+                    <button className="btn btn-ghost" style={{ marginTop: '0.8rem', fontSize: '0.85rem' }} onClick={loadData}>Retry</button>
+                </div>
+            )}
+
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                {loading ? (
-                    <div style={{ padding: '2rem', color: 'var(--text-dim)' }}>Loading inbox...</div>
-                ) : messages.length === 0 ? (
+                {messages.length === 0 ? (
                     <div className="empty" style={{ padding: '3rem 2rem' }}>
                         <h3>Inbox is empty</h3>
                         <p>When users DM or comment, they will appear here.</p>

@@ -26,6 +26,7 @@ import { PublishQueueModule } from './publish-queue/publish-queue.module';
 import { SupportModule } from './support/support.module';
 import { InboxModule } from './inbox/inbox.module';
 import { LeadModule } from './lead/lead.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { LeadModule } from './lead/lead.module';
     SupportModule,
     InboxModule,
     LeadModule,
+    AdminModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

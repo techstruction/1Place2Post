@@ -12,14 +12,23 @@ export default function BotRulesPage() {
     const [showCreate, setShowCreate] = useState(false);
     const [form, setForm] = useState({ name: '', matchType: 'CONTAINS', matchValue: '', replyText: '', webhookUrl: '', triggerType: 'comment', platform: '', socialAccountId: '', replyMode: 'reply', cooldownSeconds: 0 });
     const [error, setError] = useState('');
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
 
-    useEffect(() => {
-        botRulesApi.list()
-            .then(setRules)
-            .catch(() => router.push('/login'))
-            .finally(() => setLoading(false));
-    }, [router]);
+    async function loadData() {
+        setLoadError(null);
+        try {
+            const data = await botRulesApi.list();
+            setRules(data);
+        } catch (err: any) {
+            if (err?.status === 401 || err?.message?.includes('401')) { router.push('/login'); return; }
+            setLoadError(err?.message || 'Failed to load bot rules');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => { loadData(); }, []);
 
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault();
@@ -65,6 +74,13 @@ export default function BotRulesPage() {
                     {showCreate ? '✕ Cancel' : '+ New Rule'}
                 </button>
             </div>
+
+            {loadError && (
+                <div className="card" style={{ padding: '1.5rem', border: '1px solid var(--color-danger, #e53e3e)', marginBottom: '1rem' }}>
+                    <p style={{ color: 'var(--color-danger, #e53e3e)', margin: 0 }}>⚠️ {loadError}</p>
+                    <button className="btn btn-ghost" style={{ marginTop: '0.8rem', fontSize: '0.85rem' }} onClick={loadData}>Retry</button>
+                </div>
+            )}
 
             {showCreate && (
                 <div className="card" style={{ maxWidth: 560, marginBottom: '1.5rem' }}>
