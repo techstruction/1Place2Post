@@ -7,7 +7,7 @@ function adminFetch(path: string, opts: RequestInit = {}) {
     return fetch(`${API}${path}`, { ...opts, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` } });
 }
 
-type User = { id: string; email: string; name: string | null; role: string; createdAt: string; _count: { posts: number; socialAccounts: number }; };
+type User = { id: string; email: string; name: string | null; role: string; plan?: string; createdAt: string; _count: { posts: number; socialAccounts: number }; };
 
 const ROLE_COLORS: Record<string, string> = { ADMIN: '#6f42c1', USER: '#059669' };
 
@@ -41,6 +41,12 @@ export default function AdminUsersPage() {
         } catch (e: any) {
             alert(e.message);
         }
+    }
+
+    // Mock function to simulate Plan Assignment
+    async function changePlan(id: string, plan: string) {
+        // In a real scenario, this would persist the change via an API
+        setUsers(prev => prev.map(u => u.id === id ? { ...u, plan } : u));
     }
 
     async function deleteUser(id: string) {
@@ -87,7 +93,7 @@ export default function AdminUsersPage() {
                             <thead>
                                 <tr>
                                     <th>User</th>
-                                    <th>Role</th>
+                                    <th>Role & Plan</th>
                                     <th>Posts</th>
                                     <th>Accounts</th>
                                     <th>Joined</th>
@@ -102,12 +108,25 @@ export default function AdminUsersPage() {
                                             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user.email}</div>
                                         </td>
                                         <td>
-                                            <span style={{
-                                                display: 'inline-block', padding: '0.2rem 0.6rem',
-                                                borderRadius: 6, fontSize: '0.75rem', fontWeight: 700,
-                                                backgroundColor: `${ROLE_COLORS[user.role] ?? '#888'}22`,
-                                                color: ROLE_COLORS[user.role] ?? '#888',
-                                            }}>{user.role}</span>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'flex-start' }}>
+                                                <span style={{
+                                                    display: 'inline-block', padding: '0.2rem 0.6rem',
+                                                    borderRadius: 6, fontSize: '0.75rem', fontWeight: 700,
+                                                    backgroundColor: `${ROLE_COLORS[user.role] ?? '#888'}22`,
+                                                    color: ROLE_COLORS[user.role] ?? '#888',
+                                                }}>{user.role}</span>
+                                                <select
+                                                    className="form-input"
+                                                    style={{ padding: '0.1rem 0.4rem', fontSize: '0.7rem', width: 'auto', backgroundColor: 'var(--bg)', borderColor: 'var(--border)' }}
+                                                    value={user.plan || 'free'}
+                                                    onChange={e => changePlan(user.id, e.target.value)}
+                                                >
+                                                    <option value="free">Free (Starter)</option>
+                                                    <option value="low">Low (Creator)</option>
+                                                    <option value="medium">Medium (Pro)</option>
+                                                    <option value="high">High (Enterprise)</option>
+                                                </select>
+                                            </div>
                                         </td>
                                         <td style={{ color: 'var(--text-muted)' }}>{user._count.posts}</td>
                                         <td style={{ color: 'var(--text-muted)' }}>{user._count.socialAccounts}</td>

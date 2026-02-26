@@ -8,6 +8,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter();
     const pathname = usePathname();
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
         try {
@@ -42,31 +43,72 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/dashboard/connections', label: '🔗 Connections' },
         { href: '/dashboard/link-pages', label: '🌐 Link Pages' },
         { href: '/dashboard/bot-rules', label: '🤖 Bot Rules' },
-        { href: '/dashboard/team', label: '👥 Team' },
-        { href: '/dashboard/support', label: '🎫 Support' },
-        { href: '/docs/user', label: '📖 Documentation' },
+        { href: '/dashboard/team', label: '👥 Team', icon: '👥' },
+        { href: '/dashboard/subscription', label: '💳 Subscription Plans', icon: '💳' },
+        { href: '/dashboard/support', label: '🎫 Support', icon: '🎫' },
+        { href: '/docs/user', label: '📖 Documentation', icon: '📖' },
     ];
 
-    const adminItems = isAdmin ? [{ href: '/admin', label: '🔒 Admin Console' }] : [];
+    const adminItems = isAdmin ? [{ href: '/admin', label: '🔒 Admin Console', icon: '🔒' }] : [];
+
+    // Separate icon and text based on label string format "icon word(s)"
+    const parseLabel = (label: string) => {
+        const parts = label.split(' ');
+        const icon = parts[0];
+        const text = parts.slice(1).join(' ');
+        return { icon, text };
+    };
 
     return (
         <div className="layout">
-            <aside className="sidebar">
-                <div className="sidebar-logo">1<span>Place</span>2Post</div>
-                <nav style={{ flex: 1 }}>
-                    {[...navItems, ...adminItems].map(item => (
-                        <Link key={item.href} href={item.href}
-                            className={`nav-item${pathname.startsWith(item.href) && item.href !== '/dashboard' ? ' active' : pathname === item.href ? ' active' : ''}`}>
-                            {item.label}
-                        </Link>
-                    ))}
+            <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+                <div className="sidebar-logo">
+                    <span className="logo-icon" style={{ cursor: 'pointer', marginRight: isCollapsed ? 0 : '10px' }}>1</span>
+                    <span className="logo-text">Place</span>
+                    <span className="nav-item-label">2Post</span>
+                    {!isCollapsed && (
+                        <button
+                            className="sidebar-toggle-btn"
+                            onClick={() => setIsCollapsed(true)}
+                            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', marginLeft: 'auto' }}
+                            title="Collapse Sidebar"
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                    )}
+                </div>
+                {isCollapsed && (
+                    <button
+                        className="sidebar-toggle-btn"
+                        onClick={() => setIsCollapsed(false)}
+                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', marginBottom: '1rem' }}
+                        title="Expand Sidebar"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                )}
+
+                <nav style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    {[...navItems, ...adminItems].map(item => {
+                        const { icon, text } = parseLabel(item.label);
+                        return (
+                            <Link key={item.href} href={item.href}
+                                className={`nav-item${pathname.startsWith(item.href) && item.href !== '/dashboard' ? ' active' : pathname === item.href ? ' active' : ''}`}
+                                title={text}>
+                                <span>{icon}</span>
+                                <span className="nav-item-label">{text}</span>
+                            </Link>
+                        );
+                    })}
                 </nav>
                 <button id="logout-btn" onClick={logout} className="nav-item btn-ghost"
-                    style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                    🚪 Log out
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', marginTop: 'auto' }}
+                    title="Log out">
+                    <span>🚪</span>
+                    <span className="nav-item-label">Log out</span>
                 </button>
             </aside>
-            <main className="main-content">{children}</main>
+            <main className={`main-content ${isCollapsed ? 'expanded' : ''}`}>{children}</main>
         </div>
     );
 }
