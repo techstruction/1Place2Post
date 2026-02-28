@@ -27,6 +27,9 @@ import { SupportModule } from './support/support.module';
 import { InboxModule } from './inbox/inbox.module';
 import { LeadModule } from './lead/lead.module';
 import { AdminModule } from './admin/admin.module';
+import { InstagramModule } from './social/instagram/instagram.module';
+import { TwitterModule } from './social/twitter/twitter.module';
+import { LinkedinModule } from './social/linkedin/linkedin.module';
 
 @Module({
   imports: [
@@ -58,6 +61,9 @@ import { AdminModule } from './admin/admin.module';
     InboxModule,
     LeadModule,
     AdminModule,
+    InstagramModule,
+    TwitterModule,
+    LinkedinModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

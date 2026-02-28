@@ -65,6 +65,7 @@ model SocialAccount {
   refreshToken String?
   tokenExpiry  DateTime?
   scopes       String[]
+  metaJson     String    @default("{}") // Store platform-specific data (e.g., FB Page IDs)
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

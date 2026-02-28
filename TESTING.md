@@ -175,6 +175,9 @@ rsync -avzc --checksum apps/api/src/ ubuntu-vm:~/apps/1place2post/apps/api/src/
 rsync -avzc --checksum apps/api/prisma/ ubuntu-vm:~/apps/1place2post/apps/api/prisma/
 rsync -avzc --checksum apps/web/app/ ubuntu-vm:~/apps/1place2post/apps/web/app/
 rsync -avzc --checksum apps/web/lib/ ubuntu-vm:~/apps/1place2post/apps/web/lib/
+rsync -avzc --checksum apps/web/components/ ubuntu-vm:~/apps/1place2post/apps/web/components/
+rsync -avzc --checksum apps/web/docs/ ubuntu-vm:~/apps/1place2post/apps/web/docs/
+rsync -avzc --checksum apps/web/public/ ubuntu-vm:~/apps/1place2post/apps/web/public/
 
 # Rebuild API image (no cache)
 ssh ubuntu-vm "cd ~/apps/1place2post && docker compose -f deploy/docker-compose.staging.yml build --no-cache 1p_api_st"

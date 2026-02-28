@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anthropic Brand Guidelines - Style Guide</title>
+    <!-- Importing Poppins and Lora from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Main Colors */
+            --color-dark: #141413;
+            --color-light: #faf9f5;
+            --color-mid-gray: #b0aea5;
+            --color-light-gray: #e8e6dc;
+            
+            /* Accent Colors */
+            --color-orange: #d97757;
+            --color-blue: #6a9bcc;
+            --color-green: #788c5d;
+
+            /* Typography */
+            --font-headings: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-dark);
+            background-color: var(--color-light);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-headings);
+            color: var(--color-dark);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        h1 { font-size: 3rem; margin-top: 0; }
+        h2 { font-size: 2.25rem; border-bottom: 2px solid var(--color-light-gray); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.75rem; }
+        
+        p {
+            margin-bottom: 1.25rem;
+            font-size: 1.125rem;
+            max-width: 800px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .header {
+            background-color: var(--color-dark);
+            color: var(--color-light);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--color-light);
+        }
+
+        .header p {
+            margin: 0 auto;
+            color: var(--color-mid-gray);
+            font-family: var(--font-headings);
+            font-weight: 300;
+            font-size: 1.25rem;
+        }
+
+        /* Color Palette Grid */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .color-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--color-light-gray);
+        }
+
+        .color-swatch {
+            height: 100px;
+            width: 100%;
+        }
+
+        .color-info {
+            padding: 1rem;
+            background: #fff;
+        }
+
+        .color-name {
+            font-family: var(--font-headings);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .color-hex {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--color-mid-gray);
+            margin: 0;
+        }
+
+        /* Typography Section */
+        .type-sample {
+            padding: 2rem;
+            border: 1px solid var(--color-light-gray);
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            background: #fff;
+        }
+
+        .type-label {
+            font-family: var(--font-headings);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-mid-gray);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* UI Elements */
+        .ui-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            font-family: var(--font-headings);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            border: none;
+            font-size: 1rem;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background-color: var(--color-dark);
+            color: var(--color-light);
+        }
+
+        .btn-accent-orange { background-color: var(--color-orange); color: var(--color-light); }
+        .btn-accent-blue { background-color: var(--color-blue); color: var(--color-light); }
+        .btn-accent-green { background-color: var(--color-green); color: var(--color-light); }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--color-dark);
+            color: var(--color-dark);
+        }
+
+        /* Alert/Callout Boxes */
+        .callout {
+            padding: 1.5rem;
+            border-left: 4px solid var(--color-dark);
+            background-color: var(--color-light-gray);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .callout-orange { border-color: var(--color-orange); background-color: rgba(217, 119, 87, 0.1); }
+        .callout-blue { border-color: var(--color-blue); background-color: rgba(106, 155, 204, 0.1); }
+        .callout-green { border-color: var(--color-green); background-color: rgba(120, 140, 93, 0.1); }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Anthropic Style Guide</h1>
+        <p>Visual identity & reusable design components</p>
+    </div>
+
+    <div class="container">
+        
+        <section>
+            <h2>1. Color Palette</h2>
+            <p>Our color palette is designed to be highly readable, precise, and understated, using accents thoughtfully to draw attention.</p>
+            
+            <h3>Main Colors</h3>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-swatch" style="background-color: var(--color-dark);"></div>
+                    <div class="color-info">
+                        <p class="color-name">Dark</p>
+                        <p class="color-hex">#141413</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background-color: var(--color-light); border-bottom: 1px solid var(--color-light-gray);"></div>
+                    <div class="color-info">
+                        <p class="color-name">Light</p>
+                        <p class="color-hex">#faf9f5</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background-color: var(--color-mid-gray);"></div>
+                    <div class="color-info">
+                        <p class="color-name">Mid Gray</p>
+                        <p class="color-hex">#b0aea5</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background-color: var(--color-light-gray);"></div>
+                    <div class="color-info">
+                        <p class="color-name">Light Gray</p>
+                        <p class="color-hex">#e8e6dc</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Accent Colors</h3>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-swatch" style="background-color: var(--color-orange);"></div>
+                    <div class="color-info">
+                        <p class="color-name">Orange</p>
+                        <p class="color-hex">#d97757</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background-color: var(--color-blue);"></div>
+                    <div class="color-info">
+                        <p class="color-name">Blue</p>
+                        <p class="color-hex">#6a9bcc</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background-color: var(--color-green);"></div>
+                    <div class="color-info">
+                        <p class="color-name">Green</p>
+                        <p class="color-hex">#788c5d</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section style="margin-top: 4rem;">
+            <h2>2. Typography</h2>
+            <p>Our typography relies on two typefaces: <strong>Poppins</strong> for clean, modern headings and <strong>Lora</strong> for highly readable, elegant body copy.</p>
+            
+            <div class="type-sample">
+                <span class="type-label">Headings (Poppins)</span>
+                <h1>Heading Level 1</h1>
+                <h2>Heading Level 2</h2>
+                <h3>Heading Level 3</h3>
+                <h4>Heading Level 4</h4>
+            </div>
+
+            <div class="type-sample">
+                <span class="type-label">Body Text (Lora)</span>
+                <p>This is standard body copy. The quick brown fox jumps over the lazy dog. 1Place2Post empowers content creators to design their message once and distribute it everywhere seamlessly. It is highly recommended to use Lora for all long-form reading content as it provides excellent legibility screen.</p>
+                <p><strong>Bold text</strong> is used for emphasis, while <em>italicized text</em> can denote titles or subtle stress within a sentence.</p>
+            </div>
+        </section>
+
+        <section style="margin-top: 4rem;">
+            <h2>3. UI Elements & Components</h2>
+            <p>Examples of how colors and typography combine to create standard interface elements.</p>
+            
+            <div class="ui-section">
+                <div>
+                    <h3>Buttons</h3>
+                    <button class="btn btn-primary">Primary Action</button>
+                    <button class="btn btn-outline">Secondary Action</button>
+                    <br>
+                    <button class="btn btn-accent-orange">Orange Accent</button>
+                    <button class="btn btn-accent-blue">Blue Accent</button>
+                    <button class="btn btn-accent-green">Green Accent</button>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <h3>Callout Blocks</h3>
+                    <div class="callout">
+                        <strong>Standard Notice:</strong> This is a standard informational block using the Light Gray background and Dark border.
+                    </div>
+                    <div class="callout callout-blue">
+                        <strong>Information:</strong> The blue accent indicates a helpful tip or secondary information.
+                    </div>
+                    <div class="callout callout-orange">
+                        <strong>Warning/Action:</strong> The orange accent draws attention to important steps or destructive actions.
+                    </div>
+                    <div class="callout callout-green">
+                        <strong>Success:</strong> The green accent indicates a successful operation or positive status.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
