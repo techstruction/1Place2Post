@@ -129,6 +129,13 @@
 
 ## Recent Changes
 
+**2026-02-28** (Pre-1.0 Production Rollout - v0.8.0):
+- Bumped `api` and `web` versions to `0.8.0`.
+- Deployed to the VPS `ubuntu-vm` under a new isolated `/home/tonyg/1P2P` directory.
+- Containerized `1p_api_prod` (port `35763`) and `1p_web_prod` running on the `proxy` network.
+- Linked production domain `1place2post.techstruction.co` via Cloudflare zero-trust tunnel pointing to port 3020.
+- All MVP Phase 1-8 features pushed to production state.
+
 **2026-02-25** (Phase 8 — Admin Console & Google OAuth):
 - Created the comprehensive Admin Dashboard root (`/admin`) guarded by Next.js layouts checking local storage and returning `403` on the NestJS `/api/admin` routes.
 - Exposed metrics (queue depths, platform uptime) via the health endpoint.
