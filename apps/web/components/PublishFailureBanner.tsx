@@ -8,14 +8,17 @@ export function PublishFailureBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('1p2p_token');
-    if (!token) return;
+    if (!token) return () => controller.abort();
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:35763/api'}/publish-jobs?status=FAILED&acknowledged=false`, {
       headers: { Authorization: `Bearer ${token}` },
+      signal: controller.signal,
     })
       .then(res => res.ok ? res.json() : [])
       .then((jobs: unknown[]) => setFailedCount(jobs.length))
       .catch(() => {});
+    return () => controller.abort();
   }, []);
 
   if (dismissed || failedCount === 0) return null;
