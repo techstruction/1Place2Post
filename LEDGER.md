@@ -45,3 +45,13 @@ This document maintains a chronological record of major architectural decisions,
 ### Phase 8: Google Identity & Platform Security (2026-02-25)
 - **OAuth Infrastructure**: Bound Passport.js with the `google-oauth20` strategy inside the `AuthController`. Modified `passwordHash` to accept NULL integers in Prisma, establishing secure multi-factor or magic-login capabilities for the future.
 - **Admin Root Console**: Erected the `/admin` prefix across front and backend systems governed by a strict RBAC policy guard. Integrated API status monitoring, comprehensive read-only `AuditLogs`, and dynamic UI logic for `FeatureFlag` state flipping.
+
+### Phase 9: Strategic Research & Competitive Analysis (2026-04-24)
+- **Competitive Research**: Completed deep analysis of direct competitors: Publer (primary), Content360, SocialBee, and Metricool. Identified Publer as the benchmark — $3M ARR, 350K users, $12/mo entry — and confirmed 1Place2Post has already built features Publer has deliberately never shipped (Unified Inbox, CRM pipeline, Bot Rules).
+- **Target Persona Confirmed**: Small creator teams, 2–10 people (boutique social media managers, creator businesses, small agencies). Structurally underserved by all major tools due to per-seat/per-account pricing cliffs.
+- **Design Direction Set**: Blue accent (#4F6EF7) replacing purple (#7c5cfc). Dark sidebar (#181B20). Inter + Plus Jakarta Sans typography. 13px compact density. Lucide icons replacing emoji navigation. shadcn/ui component library adoption decision made.
+- **Phase Roadmap Revised**: Original Phase 9 (Testing) deprioritized — testing before billing and UX polish is premature. New sequence: Design System (10) → Feature Polish (11) → Billing/Stripe (12) → Testing (13) → Scale (14) → AI (15).
+- **Three Positioning Pillars Locked**: (1) "Posts that actually post" — publish reliability as product promise; (2) "Real team tools at creator prices" — flat pricing with genuine seat/account counts; (3) "Social media that grows your business" — comment-to-DM-to-lead-to-customer pipeline.
+- **Pricing Strategy Confirmed**: Starter $19/mo (1 user, 7 accounts), Team $49/mo (5 users, 20 accounts), Agency $99/mo (15 users, unlimited accounts). All features at all tiers — no gating.
+- **Launch Blocker Identified**: Stripe Billing integration required before public launch (Phase 12).
+- **Tech Debt Catalogued**: Tailwind CSS installed but unconfigured; no shared component library (2 components for 30+ pages); local disk storage must migrate to Cloudflare R2; JWT in localStorage is medium-priority security improvement.
