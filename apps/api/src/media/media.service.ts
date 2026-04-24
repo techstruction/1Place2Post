@@ -7,7 +7,7 @@ import * as path from 'path';
 export class MediaService {
     constructor(private prisma: PrismaService) { }
 
-    async saveUpload(userId: string, file: Express.Multer.File) {
+    async saveUpload(userId: string, file: Express.Multer.File, folder?: string) {
         const urlPath = `/uploads/${file.filename}`;
         return this.prisma.mediaAsset.create({
             data: {
@@ -17,6 +17,7 @@ export class MediaService {
                 mimeType: file.mimetype,
                 sizeBytes: file.size,
                 urlPath,
+                folder: folder || 'root',
                 tags: [],
             },
         });
@@ -37,5 +38,16 @@ export class MediaService {
         const filePath = path.join(process.cwd(), 'uploads', asset.filename);
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         return this.prisma.mediaAsset.delete({ where: { id } });
+    }
+
+    async moveToFolder(userId: string, id: string, folder: string) {
+        const asset = await this.prisma.mediaAsset.findUnique({ where: { id } });
+        if (!asset) throw new NotFoundException();
+        if (asset.userId !== userId) throw new ForbiddenException();
+
+        return this.prisma.mediaAsset.update({
+            where: { id },
+            data: { folder: folder || 'root' },
+        });
     }
 }

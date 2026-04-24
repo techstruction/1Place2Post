@@ -24,6 +24,7 @@ export default function ConnectionsPage() {
     const [form, setForm] = useState({ platform: 'INSTAGRAM', platformId: '', username: '', accessToken: '', tokenExpiry: '' });
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     useEffect(() => {
         socialApi.list()
@@ -61,42 +62,90 @@ export default function ConnectionsPage() {
         <>
             <div className="page-header">
                 <h1 className="page-title">Connections</h1>
-                <button id="add-account-btn" onClick={() => setShowAdd(s => !s)} className="btn btn-primary">
-                    {showAdd ? '✕ Cancel' : '+ Connect Account'}
-                </button>
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <button onClick={() => setShowHelp(s => !s)} className="btn btn-ghost">
+                        {showHelp ? '✕ Hide Help' : '📖 Manual Guide'}
+                    </button>
+                    <button id="add-account-btn" onClick={() => setShowAdd(s => !s)} className="btn btn-primary">
+                        {showAdd ? '✕ Cancel' : '+ Connect Account'}
+                    </button>
+                </div>
             </div>
 
+            {showHelp && (
+                <div className="card" style={{ marginBottom: '1.5rem', border: '1px solid var(--accent-glow)', background: 'rgba(99, 102, 241, 0.05)' }}>
+                    <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--accent-glow)' }}>How to get your Manual ID & Token</h2>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', fontSize: '0.875rem' }}>
+                        <div>
+                            <h3 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>1. Get Access Token</h3>
+                            <ol style={{ paddingLeft: '1.25rem', color: 'var(--text-muted)' }}>
+                                <li>Go to the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" style={{ color: 'var(--accent-glow)' }}>Meta Graph Explorer</a>.</li>
+                                <li>Ensure your App is selected in the top-right dropdown.</li>
+                                <li>Click <b>"Generate Access Token"</b> and follow the prompts.</li>
+                                <li>Copy the resulting string into the <b>Access Token</b> field.</li>
+                            </ol>
+                        </div>
+                        <div>
+                            <h3 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>2. Find Your Page/User ID</h3>
+                            <ul style={{ paddingLeft: '1.25rem', color: 'var(--text-muted)' }}>
+                                <li><b>Facebook:</b> Go to your Page {' > '} Meta Business Suite {' > '} Settings {' > '} Page ID.</li>
+                                <li><b>Instagram:</b> In the Graph Explorer, run a GET request to <code>me/accounts?fields=instagram_business_account</code> to find your Instagram Business ID.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {showAdd && (
-                <div className="card" style={{ maxWidth: 560, marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Add Account (manual token)</h2>
-                    {error && <div className="alert-error">{error}</div>}
-                    <form onSubmit={handleAdd}>
-                        <div className="form-group">
-                            <label className="form-label">Platform</label>
-                            <select className="form-input" value={form.platform} onChange={e => setForm(f => ({ ...f, platform: e.target.value }))}>
-                                {PLATFORMS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Platform User/Page ID *</label>
-                            <input className="form-input" required value={form.platformId} onChange={e => setForm(f => ({ ...f, platformId: e.target.value }))} placeholder="e.g. 17841400123456789" />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Username (optional)</label>
-                            <input className="form-input" value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} placeholder="@handle" />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Access Token *</label>
-                            <input className="form-input" required type="password" value={form.accessToken} onChange={e => setForm(f => ({ ...f, accessToken: e.target.value }))} placeholder="Paste your access token" />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Token Expiry (optional)</label>
-                            <input className="form-input" type="datetime-local" value={form.tokenExpiry} onChange={e => setForm(f => ({ ...f, tokenExpiry: e.target.value }))} />
-                        </div>
-                        <button id="save-account-btn" type="submit" className="btn btn-primary" disabled={saving}>
-                            {saving ? 'Connecting…' : '🔗 Connect'}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                    <div className="card" style={{ flex: '1 1 300px' }}>
+                        <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Automated Connection</h2>
+                        <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+                            Securely connect your Instagram or Facebook accounts via official Meta login.
+                        </p>
+                        <button
+                            onClick={() => {
+                                const token = localStorage.getItem('1p2p_token');
+                                window.location.href = `http://localhost:35763/api/social/instagram/auth?token=${token}`;
+                            }}
+                            className="btn btn-primary"
+                            style={{ width: '100%', background: '#4267B2' }}
+                        >
+                            🔗 Connect via Meta
                         </button>
-                    </form>
+                    </div>
+
+                    <div className="card" style={{ flex: '1 1 300px' }}>
+                        <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Add Account (manual token)</h2>
+                        {error && <div className="alert-error">{error}</div>}
+                        <form onSubmit={handleAdd}>
+                            <div className="form-group">
+                                <label className="form-label">Platform</label>
+                                <select className="form-input" value={form.platform} onChange={e => setForm(f => ({ ...f, platform: e.target.value }))}>
+                                    {PLATFORMS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Platform User/Page ID *</label>
+                                <input className="form-input" required value={form.platformId} onChange={e => setForm(f => ({ ...f, platformId: e.target.value }))} placeholder="e.g. 17841400123456789" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Username (optional)</label>
+                                <input className="form-input" value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} placeholder="@handle" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Access Token *</label>
+                                <input className="form-input" required type="password" value={form.accessToken} onChange={e => setForm(f => ({ ...f, accessToken: e.target.value }))} placeholder="Paste your access token" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Token Expiry (optional)</label>
+                                <input className="form-input" type="datetime-local" value={form.tokenExpiry} onChange={e => setForm(f => ({ ...f, tokenExpiry: e.target.value }))} />
+                            </div>
+                            <button id="save-account-btn" type="submit" className="btn btn-primary" disabled={saving}>
+                                {saving ? 'Connecting…' : '🔗 Connect'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
 

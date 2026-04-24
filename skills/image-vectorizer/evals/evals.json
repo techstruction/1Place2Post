@@ -1,0 +1,28 @@
+{
+    "skill_name": "image-vectorizer",
+    "evals": [
+        {
+            "id": 0,
+            "name": "local-logo-svg",
+            "prompt": "Vectorize the local image at /Users/tonyg/Documents/TC/GitHub/1Place2Post/assets/branding/icons/logo_1024.png and save it as an SVG in the same directory. Use the local CLI method for speed.",
+            "expected_output": "An SVG file named logo_1024.svg should be created in the branding/icons directory.",
+            "files": [
+                "/Users/tonyg/Documents/TC/GitHub/1Place2Post/assets/branding/icons/logo_1024.png"
+            ]
+        },
+        {
+            "id": 1,
+            "name": "remote-url-eps",
+            "prompt": "I need this image vectorized for Illustrator: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Google_Gemini_logo.svg/2560px-Google_Gemini_logo.svg.png. Please use the Premium Browser method (Vectorizer.ai) and save it as an EPS file in the current directory.",
+            "expected_output": "An EPS file of the Gemini logo should be downloaded and saved.",
+            "files": []
+        },
+        {
+            "id": 2,
+            "name": "bw-sketch-trace",
+            "prompt": "Take the attached image of a hand-drawn sketch and trace it into a clean black and white SVG using the best local tool available.",
+            "expected_output": "A clean B&W SVG should be produced.",
+            "files": []
+        }
+    ]
+}

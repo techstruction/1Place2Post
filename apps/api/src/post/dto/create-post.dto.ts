@@ -40,4 +40,9 @@ export class CreatePostDto {
     @IsOptional()
     @IsString()
     seriesId?: string;
+
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    mediaAssetIds?: string[];
 }

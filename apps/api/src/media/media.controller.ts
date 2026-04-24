@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, UseGuards, Request, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, UseGuards, Request, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, Body, Patch } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -34,12 +34,18 @@ export class MediaController {
             ],
         }))
         file: Express.Multer.File,
+        @Body('folder') folder?: string,
     ) {
-        return this.service.saveUpload(req.user.id, file);
+        return this.service.saveUpload(req.user.id, file, folder);
     }
 
     @Get()
     findAll(@Request() req) { return this.service.findAll(req.user.id); }
+
+    @Patch(':id/move')
+    move(@Request() req, @Param('id') id: string, @Body('folder') folder: string) {
+        return this.service.moveToFolder(req.user.id, id, folder);
+    }
 
     @Delete(':id')
     remove(@Request() req, @Param('id') id: string) { return this.service.remove(req.user.id, id); }

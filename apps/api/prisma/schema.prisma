@@ -26,7 +26,6 @@ model User {
 
   socialAccounts   SocialAccount[]
   posts            Post[]
-  mediaFiles       MediaFile[]
   series           Series[]
   linkPages        LinkPage[]
   botRules         BotRule[]
@@ -109,7 +108,7 @@ model Post {
 
   user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   platforms  PostPlatform[]
-  mediaFiles PostMedia[]
+  mediaAssets PostMedia[]
   approval   PostApproval?
   publishJob PostPublishJob?
   postLogs   PostLog[]
@@ -245,30 +244,16 @@ model PostPlatform {
 // Media Library
 // ─────────────────────────────────────────────
 
-model MediaFile {
-  id        String   @id @default(cuid())
-  userId    String
-  filename  String
-  mimeType  String
-  sizeBytes Int
-  url       String // storage URL (local or cloud)
-  tags      String[]
-  createdAt DateTime @default(now())
-
-  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  posts PostMedia[]
-}
-
 model PostMedia {
-  id          String @id @default(cuid())
-  postId      String
-  mediaFileId String
-  sortOrder   Int    @default(0)
+  id           String @id @default(cuid())
+  postId       String
+  mediaAssetId String
+  sortOrder    Int    @default(0)
 
-  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  mediaFile MediaFile @relation(fields: [mediaFileId], references: [id], onDelete: Cascade)
+  post       Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  mediaAsset MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
 
-  @@unique([postId, mediaFileId])
+  @@unique([postId, mediaAssetId])
 }
 
 // ─────────────────────────────────────────────
@@ -285,10 +270,12 @@ model MediaAsset {
   mimeType     String
   sizeBytes    Int
   urlPath      String // e.g. /uploads/filename.jpg
+  folder       String?  @default("root")
   tags         String[]
   createdAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts PostMedia[]
 }
 
 // ─────────────────────────────────────────────

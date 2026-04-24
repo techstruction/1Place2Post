@@ -3,6 +3,9 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { postsApi } from '../../../../lib/api';
+import MediaSelectorModal from '../../../../components/MediaSelectorModal';
+
+type MediaAsset = { id: string; urlPath: string; mimeType: string; originalName: string };
 
 function NewPostForm() {
     const router = useRouter();
@@ -11,6 +14,8 @@ function NewPostForm() {
     const [hashtags, setHashtags] = useState(params.get('hashtags') ?? '');
     const [scheduledAt, setScheduledAt] = useState('');
     const [status, setStatus] = useState<'DRAFT' | 'SCHEDULED'>('DRAFT');
+    const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
+    const [showMediaModal, setShowMediaModal] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -24,6 +29,7 @@ function NewPostForm() {
                 hashtags: hashtags.split(' ').map(h => h.trim()).filter(Boolean),
                 scheduledAt: scheduledAt || undefined,
                 status: scheduledAt ? 'SCHEDULED' : status,
+                mediaAssetIds: mediaAssets.map(a => a.id),
             });
             router.push('/dashboard/posts');
         } catch (err: any) {
@@ -37,6 +43,21 @@ function NewPostForm() {
         <div className="card" style={{ maxWidth: 680 }}>
             {error && <div className="alert-error">{error}</div>}
             <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label className="form-label">Media</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                        {mediaAssets.map(a => (
+                            <div key={a.id} style={{ width: 80, height: 80, borderRadius: 8, overflow: 'hidden', backgroundColor: 'var(--bg-input)' }}>
+                                {a.mimeType.startsWith('image/') ? (
+                                    <img src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:35763'}${a.urlPath}`} alt={a.originalName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>🎬</div>
+                                )}
+                            </div>
+                        ))}
+                        <button type="button" className="btn btn-ghost" style={{ width: 80, height: 80, border: '2px dashed var(--border)' }} onClick={() => setShowMediaModal(true)}>+</button>
+                    </div>
+                </div>
                 <div className="form-group">
                     <label className="form-label">Caption *</label>
                     <textarea id="caption" className="form-input" value={caption}
@@ -69,6 +90,7 @@ function NewPostForm() {
                     <Link href="/dashboard/posts" className="btn btn-ghost">Cancel</Link>
                 </div>
             </form>
+            {showMediaModal && <MediaSelectorModal onClose={() => setShowMediaModal(false)} onSelect={(assets) => { setMediaAssets(assets); setShowMediaModal(false); }} />}
         </div>
     );
 }

@@ -30,6 +30,7 @@ import { AdminModule } from './admin/admin.module';
 import { InstagramModule } from './social/instagram/instagram.module';
 import { TwitterModule } from './social/twitter/twitter.module';
 import { LinkedinModule } from './social/linkedin/linkedin.module';
+import { McpModule } from './mcp/mcp.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { LinkedinModule } from './social/linkedin/linkedin.module';
     InstagramModule,
     TwitterModule,
     LinkedinModule,
+    McpModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
