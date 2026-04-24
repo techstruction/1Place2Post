@@ -2,23 +2,69 @@
 @config "./tailwind.config.ts";
 
 :root {
-  --bg: #0a0a0f;
+  /* ── Brand ── */
+  --brand-500: #4F6EF7;
+  --brand-400: #7089F9;
+  --brand-600: #3A56E8;
+  --brand-muted: rgba(79, 110, 247, 0.15);
+
+  /* ── Backgrounds ── */
+  --bg-base: #0a0a0f;
   --bg-card: #13131a;
   --bg-input: #1c1c26;
-  --border: #2a2a3a;
-  --accent: #7c5cfc;
-  --accent-hover: #9b80ff;
-  --accent-muted: rgba(124, 92, 252, 0.15);
-  --text: #f0f0ff;
-  --text-muted: #8888aa;
+  --bg-sidebar: #181B20;
+  --bg-hover: #1e1e2a;
+
+  /* ── Text ── */
+  --text-primary: #f0f0ff;
+  --text-secondary: #8888aa;
   --text-dim: #555577;
-  --danger: #ff4d6d;
+
+  /* ── Borders ── */
+  --border-default: #2a2a3a;
+  --border-subtle: #1e1e2e;
+
+  /* ── Semantic ── */
   --success: #00d68f;
   --warning: #ffaa00;
-  --radius: 12px;
+  --danger: #ff4d6d;
+
+  /* ── Typography ── */
+  --font-ui: 'Inter', -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+
+  /* ── Spacing ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ── Radius ── */
+  --radius: 10px;
   --radius-sm: 8px;
+
+  /* ── Shadow ── */
   --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --font: 'Inter', -apple-system, sans-serif;
+
+  /* ── Legacy aliases (backward compat) ── */
+  --bg: var(--bg-base);
+  --border: var(--border-default);
+  --accent: var(--brand-500);
+  --accent-hover: var(--brand-400);
+  --accent-muted: var(--brand-muted);
+  --text: var(--text-primary);
+  --text-muted: var(--text-secondary);
+  --font: var(--font-ui);
+
+  /* ── Fix previously undefined variables ── */
+  --color-heading: var(--text-primary);
+  --text-main: var(--text-primary);
+  --bg-main: var(--bg-base);
+  --bg-card-hover: var(--bg-hover);
+  --primary: var(--brand-500);
+  --color-danger: var(--danger);
 }
 
 *,
@@ -30,13 +76,13 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 13px;
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
   line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -58,8 +104,8 @@ a:hover {
 }
 
 .sidebar {
-  width: 240px;
-  background: var(--bg-card);
+  width: 220px;
+  background: var(--bg-sidebar);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -93,7 +139,7 @@ a:hover {
 }
 
 .sidebar.collapsed {
-  width: 80px;
+  width: 64px;
   align-items: center;
   padding: 1.5rem 0.5rem;
 }
@@ -151,16 +197,16 @@ a:hover {
 }
 
 .main-content {
-  margin-left: 240px;
+  margin-left: 220px;
   flex: 1;
   padding: 2rem;
-  max-width: calc(100vw - 240px);
+  max-width: calc(100vw - 220px);
   transition: margin-left 0.3s ease, max-width 0.3s ease;
 }
 
 .main-content.expanded {
-  margin-left: 80px;
-  max-width: calc(100vw - 80px);
+  margin-left: 64px;
+  max-width: calc(100vw - 64px);
 }
 
 /* ── Mobile Responsiveness ── */
@@ -195,13 +241,6 @@ a:hover {
   }
 
   /* Hide toggle on smaller screens */
-}
-
-.main-content {
-  margin-left: 240px;
-  flex: 1;
-  padding: 2rem;
-  max-width: calc(100vw - 240px);
 }
 
 /* ── Cards ── */
@@ -451,4 +490,9 @@ tr:hover td {
   font-size: 1rem;
   margin-bottom: 0.5rem;
   color: var(--text-muted);
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
