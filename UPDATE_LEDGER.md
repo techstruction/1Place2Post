@@ -1,7 +1,7 @@
 # 1Place2Post Update Ledger
-*Last Updated: 2026-02-24*
-*Current Phase: 8 (Completed)*
-*Deployment Status: Staging live — all Phase 1–8 routes operational*
+*Last Updated: 2026-04-24*
+*Current Phase: 9 (Completed) — Phase 10 (Design System & UI Overhaul) is NEXT*
+*Deployment Status: Production live at `http://1place2post.techstruction.co` — all Phase 1–8 features operational*
 
 ---
 
@@ -107,8 +107,20 @@
 - [x] Prisma updates (optional `passwordHash`)
 - [x] Global Admin Dashboard (`/admin`)
 - [x] User management, Security Audits, Platform Health Checks
-- [ ] Performance optimisation (indexes, caching)
-- [ ] Log aggregation + monitoring/alerting
+- [ ] Performance optimisation (indexes, caching) — deferred to Phase 14
+- [ ] Log aggregation + monitoring/alerting — deferred to Phase 14
+
+### ✅ Phase 9: Strategic Research & Competitive Analysis (Completed 2026-04-24)
+- [x] Deep competitive analysis: Publer (primary), Content360, SocialBee, Metricool
+- [x] Identified Publer ($3M ARR, 350K users, $12/mo) as direct benchmark
+- [x] Confirmed existing features (Inbox, CRM, Bot Rules) represent Publer's structural gaps
+- [x] Target persona locked: small creator teams, 2–10 people
+- [x] Design direction set: blue accent (#4F6EF7), shadcn/ui component library, Lucide icons
+- [x] Three positioning pillars defined: "Posts that actually post" / "Real team tools at creator prices" / "Social media that grows your business"
+- [x] Pricing strategy confirmed: Starter $19/mo, Team $49/mo, Agency $99/mo — all features at all tiers
+- [x] Phase roadmap revised: Design System (10) → Feature Polish (11) → Billing/Stripe (12, launch blocker) → Testing (13) → Scale (14) → AI Agents (15) → Enterprise/Ecosystem (16)
+- [x] New docs created: `docs/NORTH_STAR.md`, `docs/DESIGN_SYSTEM.md`
+- [x] HANDOFF.md, LEDGER.md, ROADMAP.md fully updated
 
 ---
 
@@ -128,6 +140,14 @@
 ---
 
 ## Recent Changes
+
+**2026-04-24** (Phase 9 — Strategic Research & Pivot):
+- Completed competitive research on Publer, Content360, SocialBee, Metricool
+- Identified Publer as the direct benchmark; confirmed our inbox/CRM/bot-rules combination is Publer's structural gap
+- Locked design direction: blue accent (#4F6EF7 replacing #7c5cfc purple), shadcn/ui + Tailwind v4, Lucide icons, 13px compact typography
+- Revised phase roadmap (Phases 10–16) — testing moved to Phase 13 after billing is live
+- Created `docs/NORTH_STAR.md` and `docs/DESIGN_SYSTEM.md` as canonical references
+- Phase 10 (Design System & UI Overhaul) is the immediate next build
 
 **2026-02-28** (Pre-1.0 Production Rollout - v0.8.0):
 - Bumped `api` and `web` versions to `0.8.0`.

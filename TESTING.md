@@ -1,6 +1,12 @@
 # 1Place2Post — Test Commands Reference
 
-A living document of all test and verification commands across the project. Run these locally or on staging to validate each phase.
+> **Phase context:** Comprehensive testing (unit, integration, E2E Playwright, security) is **Phase 13** on the roadmap — scheduled after the Design System (Phase 10), Feature Polish (Phase 11), and Stripe Billing (Phase 12) are complete. See `ROADMAP.md` for the full sequence.
+>
+> This document is a living reference of smoke test commands for validating the API during development. It will be expanded into a full test suite in Phase 13.
+
+---
+
+A reference of API smoke test and verification commands across the project. Run these locally or against production to validate endpoints.
 
 ---
 
