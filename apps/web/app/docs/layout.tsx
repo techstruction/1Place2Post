@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-main)' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-base)' }}>
             <aside style={{
                 width: 250,
                 borderRight: '1px solid var(--border)',

@@ -17,10 +17,10 @@ function CallbackContent() {
     }, [router, searchParams]);
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-main)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-base)' }}>
             <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
-                <h1 style={{ color: 'var(--color-heading)', marginBottom: '0.5rem' }}>Authenticating...</h1>
+                <h1 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Authenticating...</h1>
                 <p style={{ color: 'var(--text-muted)' }}>Securely logging you in.</p>
             </div>
         </div>
@@ -29,7 +29,7 @@ function CallbackContent() {
 
 export default function AuthCallbackPage() {
     return (
-        <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-main)' }}><p style={{ color: 'var(--text-dim)' }}>Loading...</p></div>}>
+        <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-base)' }}><p style={{ color: 'var(--text-dim)' }}>Loading...</p></div>}>
             <CallbackContent />
         </Suspense>
     );
