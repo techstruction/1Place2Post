@@ -159,7 +159,6 @@ export default function InboxPage() {
                   flexDirection: 'column',
                   gap: 4,
                   padding: '12px 14px',
-                  borderBottom: '1px solid var(--border-subtle)',
                   border: 'none',
                   borderBottomWidth: 1,
                   borderBottomStyle: 'solid',
