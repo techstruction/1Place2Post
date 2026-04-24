@@ -1,89 +1,147 @@
-# 1Place2Post Development Roadmap
+# 1Place2Post — Product Roadmap
 
-This document outlines the strategic progression of features from the initial infrastructure setup through the finalized enterprise suite.
-
-## 🟢 Completed Milestones (Phases 0 - 8)
-
-### Phase 0: Foundation
-- [x] Monorepo scaffold (Next.js + NestJS + Prisma).
-- [x] Docker Containerization (Web, API, Postgres).
-- [x] Core CI/CD staging deployment scripts.
-
-### Phase 1: Identity & Core Posting
-- [x] JWT Authentication & User Registration.
-- [x] Social Accounts Management (add, list, delete).
-- [x] Base Post Scheduling CRUD Operations.
-- [x] Dashboard UI / Layout initialization.
-
-### Phase 2: Engagement & Link-in-Bio
-- [x] Link Pages (`/l/:slug`) generation with dynamic link tracking.
-- [x] Bot Rules engine (`CONTAINS`, `REGEX`, `ANY`) for webhooks.
-- [x] Content Series / Campaign categorization.
-
-### Phase 3: Assets & Teams
-- [x] Media Asset Library with local disk multi-part uploads.
-- [x] Reusable Post Templates.
-- [x] Team Workspaces (Role-based access: OWNER, ADMIN, MEMBER).
-- [x] Base Analytics engine (click tracking, global views).
-
-### Phase 4: Enterprise Workflows
-- [x] Post Approvals pipeline (Request -> Review -> Approve/Reject).
-- [x] RSS Campaigns for automated content fetching.
-- [x] Outgoing Webhooks (Firing events to external services).
-- [x] Visual Link-Bio Theme builder (colors, layouts).
-
-### Phase 5: Reliability & Support
-- [x] Postgres-backed custom Job Queue for reliable publishing (exponentional backoff).
-- [x] In-app Notification center.
-- [x] Support Ticketing system (threaded messages).
-
-### Phase 6: Unified Comms
-- [x] Unified Inbox (Aggregating DMs and Comments).
-- [x] Advanced Bot Rules (Auto-reply Modes, Cooldown timers).
-- [x] Leads CRM Pipeline (auto-generating contacts from engagements).
-- [x] Webhook Ingest router.
-
-### Phase 7: Interactive Documentation
-- [x] In-app User Manual embedded in Next.js.
-- [x] In-app Administrator Guide.
-- [x] Integrated Markdown rendering engine.
-
-### Phase 8: Security & Administration
-- [x] Google OAuth (Passport.js integration).
-- [x] Global Admin Console (User management, Audit Logs).
-- [x] Platform Health Monitors.
-- [x] Feature Flags (Dynamic functionality toggles).
+> Living document. Update phase status as work completes.
 
 ---
 
-## 🟡 Upcoming Milestones
+## Completed Phases
 
-### Phase 9: Testing Stage I
-- [ ] **Unit & Integration Setup**: Scaffold the test environment and seed database accounts. Establish API validation for all endpoints.
-- [ ] **Functional & UI Tests**: Develop E2E Playwright tests including `create-post.spec.ts` and automated visual regression checks.
-- [ ] **Specialized Features Q/A**: Build validation tests around RSS parsing, Bot Rules engine accuracy, and Link-in-Bio routing.
-- [ ] **Security Audits**: Preliminary fuzzing of the API, testing JWT scope limitations and OAuth integrity.
+| Phase | Name | Completed |
+|---|---|---|
+| 0 | Monorepo Foundation | 2026-02-23 |
+| 1 | Authentication & Core Publishing | 2026-02-23 |
+| 2 | Link Pages & Bot Engines | 2026-02-24 |
+| 3 | Media Uploads & Team Workspaces | 2026-02-24 |
+| 4 | Approvals & Outgoing Webhooks | 2026-02-24 |
+| 5 | Distributed Queues & Notifications | 2026-02-24 |
+| 6 | Unified Inbox & CRM Leads | 2026-02-24 |
+| 7 | Interactive Developer Manuals | 2026-02-24 |
+| 8 | Google Identity & Platform Security | 2026-02-25 |
+| 9 | Strategic Research & Competitive Analysis | 2026-04-24 |
 
-### Phase 10: Scale & Optimization
-- [ ] **Rate Limiting Engine**: Implement NestJS Throttler guards to protect public-facing endpoints (e.g. tracking links, authentication).
-- [ ] **Storage Migration**: Migrate local `uploads/` disk storage to cloud-based S3/R2 object storage for distributed horizontal scaling.
-- [ ] **Redis Integration**: Move current Postgres-backed queue system to a dedicated Redis cluster (BullMQ) for high-throughput job processing and WebSocket pub/sub.
+---
 
-### Phase 11: AI Agents & Advanced Automations
-- [ ] **LLM Integration**: Expand "AI Studio" beyond basic templates to analyze incoming DMs and auto-generate contextually aware replies using OpenAI/Anthropic APIs.
-- [ ] **Sentiment Analysis**: Automatically flag and route angry or urgent inbox messages directly to the Support module.
-- [ ] **Smart Scheduling**: Machine learning algorithms to suggest optimal posting times based on historical user engagement metrics.
+## Active & Upcoming Phases
 
-### Phase 12: Enterprise Identity
-- [ ] SAML / SSO Integration (Okta/Entra ID) for enterprise team clients.
-- [ ] Granular Custom Permissions (beyond static Owner/Admin/Member).
-- [ ] Two-Factor Authentication (2FA) enforcement.
+### Phase 10 — Design System & UI Overhaul
+**Status:** 🔴 Next — Immediate priority
+**Goal:** Replace the ad-hoc inline-style / vanilla CSS approach with a cohesive, maintainable design system. Deliver a UI that feels beautiful, professional, and trustworthy.
 
-### Phase 13: External Ecosystem
-- [ ] **Public Developer API**: Interactive Swagger/OpenAPI documentation allowing customers to build custom integrations.
-- [ ] **Mobile App**: React Native or Flutter application bringing the Unified Inbox and Push Notifications natively to iOS/Android.
+**Deliverables:**
+- shadcn/ui + Radix UI + Tailwind v4 fully configured
+- Full component library (Button, Input, Modal, Dropdown, Badge, Card, Table, Skeleton, Toast)
+- Blue accent color scheme (#4F6EF7) across all pages
+- Dark sidebar (#181B20) with Lucide icon navigation (no emoji)
+- Account health indicators (amber/red dots for disconnected/expired tokens)
+- Post composer with side-by-side platform preview pane
+- Inbox redesigned as 3-panel layout with sentiment badges
+- Global "failed posts" alert banner
+- Skeleton loading screens throughout
+- 220px sidebar (down from 240px)
+- Inter + Plus Jakarta Sans typography
 
-### Phase 14: Testing Stage II
-- [ ] **Performance & Stress Testing**: Implement Load testing (e.g. JMeter/k6) simulating 100+ concurrent bulk scheduling actions.
-- [ ] **Rate Limiting Engine Q/A**: Verify infrastructure gracefully handles 429 API errors from Social platforms without crashing the worker queues.
-- [ ] **Redundancy & Failover**: Chaos engineering tests on the Redis job queue and Postgres database failovers.
+**Key files:**
+- `apps/web/components/ui/` — New shadcn/ui component directory
+- `apps/web/app/globals.css` — Updated CSS tokens
+- `apps/web/tailwind.config.ts` — Full Tailwind config (create)
+- `apps/web/components.json` — shadcn/ui init config (create)
+
+**Reference:** `docs/DESIGN_SYSTEM.md`
+
+---
+
+### Phase 11 — Feature Completeness & Polish
+**Status:** ⚪ Planned
+**Goal:** Close the feature gaps identified in the UX audit and competitive research.
+
+**Deliverables:**
+- Calendar: drag-and-drop rescheduling
+- Post composer: media upload UX, platform character counters, hashtag suggestions
+- Bulk scheduling (CSV import or multi-select)
+- AI Studio: caption generation (Anthropic claude-haiku-4-5)
+- Analytics: chart visualizations (line/bar for engagement over time)
+- Lead pipeline: Kanban drag-and-drop
+- Mobile-responsive layouts (full, not just sidebar collapse)
+- Form validation: consistent client-side patterns across all forms
+
+---
+
+### Phase 12 — Billing & Monetization ⚠ LAUNCH BLOCKER
+**Status:** ⚪ Planned
+**Goal:** Stripe integration enabling paid subscriptions. Cannot acquire real paying customers without this.
+
+**Deliverables:**
+- Stripe Billing: subscription creation, plan changes, trial periods
+- Stripe Customer Portal: self-serve cancellation, plan upgrades/downgrades
+- Subscription enforcement middleware (API gates features by active plan)
+- Pricing page (public, no login required)
+- Pre-renewal email (30-day reminder via Resend)
+- Grandfathered pricing mechanism (never raise prices on existing subscribers)
+- Webhook handler for Stripe events (payment failed, subscription cancelled, etc.)
+
+**Pricing tiers:**
+| Plan | Users | Accounts | Price |
+|---|---|---|---|
+| Starter | 1 | 7 | $19/mo |
+| Team | 5 | 20 | $49/mo |
+| Agency | 15 | Unlimited | $99/mo |
+
+---
+
+### Phase 13 — Testing & QA (Stage I)
+**Status:** ⚪ Planned
+**Goal:** Establish confidence in correctness before scaling traffic.
+
+**Deliverables:**
+- Unit tests: auth, post CRUD, bot rules, RSS parsing
+- Integration tests: publish queue, inbox ingestion, webhook dispatch
+- E2E Playwright: create-post, inbox thread, link-in-bio, bot rule trigger
+- Visual regression: key dashboard pages
+- Security: JWT scope tests, OAuth flow integrity, subscription gate tests
+
+---
+
+### Phase 14 — Scale & Reliability
+**Status:** ⚪ Planned
+
+**Deliverables:**
+- NestJS Throttler rate limiting
+- Cloudflare R2 migration (replace local disk uploads — S3-compatible, ARM64-friendly)
+- Redis + BullMQ (replace Postgres job queue)
+- CDN for static assets
+- Performance profiling + optimization
+
+---
+
+### Phase 15 — AI Agents
+**Status:** ⚪ Planned
+
+**Deliverables:**
+- LLM-powered DM auto-replies (Anthropic claude-sonnet-4-6 with lead history context)
+- Sentiment analysis for inbox routing (flag angry/urgent messages)
+- Smart scheduling (ML-based optimal posting time suggestions)
+- AI caption adaptation (one draft → per-platform variants)
+
+---
+
+### Phase 16 — Enterprise & Ecosystem
+**Status:** ⚪ Planned (Future)
+
+**Deliverables:**
+- SAML/SSO (Okta, Entra ID)
+- Granular custom permissions
+- 2FA enforcement
+- Public Developer API (Swagger/OpenAPI, rate-limited)
+- Mobile App (React Native — Unified Inbox + Push Notifications)
+
+---
+
+## Launch Criteria
+
+Before public launch / paid customer acquisition:
+- [ ] Phase 10 complete (UI is beautiful and usable)
+- [ ] Phase 12 complete (Stripe billing live)
+- [ ] Phase 13 in progress (core tests passing)
+- [ ] Publish success rate ≥ 99% over 30-day window
+- [ ] Pricing page live
+- [ ] Onboarding: signup → connect account → schedule first post in ≤ 5 min
