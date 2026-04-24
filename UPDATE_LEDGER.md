@@ -1,7 +1,7 @@
 # 1Place2Post Update Ledger
 *Last Updated: 2026-04-24*
-*Current Phase: 9 (Completed) — Phase 10 (Design System & UI Overhaul) is NEXT*
-*Deployment Status: Production live at `http://1place2post.techstruction.co` — all Phase 1–8 features operational*
+*Current Phase: 10 (Completed) — Phase 11 (Feature Completeness & Polish) is NEXT*
+*Deployment Status: Production live at `http://1place2post.techstruction.co` — all Phase 1–10 features operational*
 
 ---
 
@@ -110,6 +110,58 @@
 - [ ] Performance optimisation (indexes, caching) — deferred to Phase 14
 - [ ] Log aggregation + monitoring/alerting — deferred to Phase 14
 
+### ✅ Phase 10: Design System & UI Overhaul (Completed 2026-04-24)
+
+**12 commits** — all on `main` branch. Production container rebuilt and restarted.
+
+**Foundation:**
+- [x] `lucide-react`, `clsx`, `tailwind-merge`, `class-variance-authority` installed
+- [x] `tailwind.config.ts` created (brand colors, surface palette, font families, type scale, border radii)
+- [x] `@config "../tailwind.config.ts"` added to `app/globals.css` (v4 wiring — path relative to CSS file)
+- [x] `components.json` created for shadcn/ui CLI
+- [x] `lib/utils.ts` with canonical `cn()` helper
+- [x] 18 shadcn/ui components installed to `components/ui/`
+
+**Design Tokens:**
+- [x] Full `:root` token set: `--brand-500/400/600/muted`, `--bg-base/card/input/sidebar/hover`, `--text-primary/secondary/dim`, `--border-default/subtle`, semantic colors, typography vars, spacing scale
+- [x] Legacy aliases: `--accent: var(--brand-500)`, `--text: var(--text-primary)`, etc. — backward compat
+- [x] Undefined variable shims: `--color-heading`, `--text-main`, `--bg-main`, `--bg-card-hover`, `--primary`, `--color-danger` all aliased to canonical tokens
+- [x] Font imports updated: Plus Jakarta Sans added, Lora + Poppins removed
+- [x] Base font-size: 16px → 13px
+- [x] Sidebar: 240px → 220px (collapsed: 80px → 64px), bg `var(--bg-sidebar)`
+
+**Custom Components (6):**
+- [x] `components/AccountHealthDot.tsx` — green/amber/red status dot + `getAccountHealth()` helper
+- [x] `components/PostStatusBadge.tsx` — inline badge for DRAFT/SCHEDULED/PUBLISHED/FAILED
+- [x] `components/PlatformBadge.tsx` — icon + label per platform (generic Lucide substitutes — brand icons removed from lucide-react)
+- [x] `components/SentimentBadge.tsx` — +/?/− badge with keyword-based `detectSentiment()`
+- [x] `components/SkeletonCard.tsx` — `SkeletonCard` + `SkeletonRow` with `skeleton-pulse` animation
+- [x] `components/PublishFailureBanner.tsx` — dismissible banner; fetches failed jobs with AbortController
+
+**Sidebar (dashboard/layout.tsx):**
+- [x] All 21 nav items use Lucide icons (no emoji)
+- [x] Collapse/expand: `ChevronLeft`/`ChevronRight` (no inline SVG)
+- [x] Logout: `LogOut` icon
+- [x] Account health section: fetches `/api/social-accounts` (AbortController); renders up to 5 accounts with health dots
+- [x] `PublishFailureBanner` rendered at top of main content area
+- [x] Double-padding fix: `.main-content` CSS class padding removed; inner div carries `padding: 2rem`
+
+**Page Rebuilds:**
+- [x] `dashboard/page.tsx` — `SkeletonCard` (4x) + `SkeletonRow` (3x) while loading; `PostStatusBadge` in table
+- [x] `dashboard/posts/new/page.tsx` — two-column grid: compose form (left) + `PreviewPane` (right) with platform tabs and character counter (amber at 90%, red at overflow)
+- [x] `dashboard/inbox/page.tsx` — 3-column grid (`120px 280px 1fr`): platform filter → thread list with `SentimentBadge` → thread view with `PlatformBadge` + stub reply area
+
+**CSS Variable Cleanup:**
+- [x] All 7 admin pages updated: `--color-heading` → `--text-primary`, `--bg-main` → `--bg-base`, `--primary` → `--brand-500`, `--font-body` → `--font-ui`
+- [x] `auth/callback/page.tsx` and `docs/layout.tsx` cleaned
+- [x] Zero undefined CSS variable references remain in `apps/web/app/`
+
+**Known gaps deferred to Phase 11:**
+- Skeleton loading only on `dashboard/page.tsx` — 20 other dashboard pages still show "Loading…" text
+- Inbox reply sending stubbed (Send Reply button renders; no API call)
+- `/api/publish-jobs` endpoint used by `PublishFailureBanner` must exist in NestJS (fallback: silent fail)
+- `/api/social-accounts` endpoint used by sidebar must exist (fallback: silent fail, health section hidden)
+
 ### ✅ Phase 9: Strategic Research & Competitive Analysis (Completed 2026-04-24)
 - [x] Deep competitive analysis: Publer (primary), Content360, SocialBee, Metricool
 - [x] Identified Publer ($3M ARR, 350K users, $12/mo) as direct benchmark
@@ -140,6 +192,17 @@
 ---
 
 ## Recent Changes
+
+**2026-04-24** (Phase 10 — Design System & UI Overhaul):
+- shadcn/ui installed (18 components), Tailwind v4 wired via `@config` directive, lucide-react in place
+- Blue brand token system replacing legacy purple across all pages
+- Sidebar: Lucide icons, 220px, account health dots, failure banner
+- Post composer: two-column layout with live preview and character counters (5 platforms)
+- Inbox: 3-panel layout (platform filter → threads → thread view with sentiment badges)
+- Dashboard overview: skeleton loading for stats + table rows
+- Zero undefined CSS variables across all `.tsx` files
+- Production container rebuilt and smoke tests passing
+- `docs/ANNEALING.md` created: lessons learned log for future agent sessions
 
 **2026-04-24** (Phase 9 — Strategic Research & Pivot):
 - Completed competitive research on Publer, Content360, SocialBee, Metricool

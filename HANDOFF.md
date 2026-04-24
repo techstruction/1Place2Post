@@ -6,13 +6,13 @@
 
 ## Production Status (as of 2026-04-24)
 
-**Version:** v0.8.0
+**Version:** v0.9.0
 **Branch:** `main` — up to date with `origin`
 **Repo:** `github.com/techstruction/1Place2Post`
 **URL:** `http://1place2post.techstruction.co`
 **Server:** Oracle Cloud Ubuntu 22.04 ARM64 (`openbrain-node-01` / `100.101.15.109` via Tailscale)
 
-All phases 0–9 are complete. Phase 10 (Design System & UI Overhaul) is the immediate next build.
+All phases 0–10 are complete. Phase 11 (Feature Completeness & Polish) is the immediate next build.
 
 ---
 
@@ -62,12 +62,12 @@ All containers are on the shared `proxy` Docker network. Nginx routes `/api/*` t
 
 Full spec: `docs/DESIGN_SYSTEM.md`
 
-- **Color:** Blue accent `#4F6EF7` (replacing legacy purple `#7c5cfc`). Dark sidebar `#181B20`. Background `#0a0a0f`.
-- **Typography:** Inter (UI), Plus Jakarta Sans (headings/display). 13px base font. Remove Lora/Poppins (unused).
-- **Components:** shadcn/ui + Radix UI + Tailwind v4. Full component library replaces current inline-style approach.
-- **Icons:** Lucide icons replace emoji navigation.
-- **Sidebar:** 220px fixed (down from 240px). Account health dots (amber/red) for disconnected/expired accounts.
-- **Reliability signals:** Global "⚠ X posts failed" banner when publish failures exist. Prominent publish queue dashboard.
+- **Color:** Blue accent `#4F6EF7`. Dark sidebar `#181B20`. Background `#0a0a0f`. All tokens live in `globals.css` `:root` block. Legacy aliases (`--accent`, `--text`, `--bg`, etc.) forward to canonical names for backward compat.
+- **Typography:** Inter (UI, `--font-ui`), Plus Jakarta Sans (display, `--font-display`). 13px base font. Lora and Poppins removed.
+- **Components:** shadcn/ui 18 components in `components/ui/`. 6 custom components in `components/`. `cn()` helper in `lib/utils.ts`.
+- **Icons:** Lucide icons throughout. Note: lucide-react removed brand social icons (Instagram, Facebook etc.) — `PlatformBadge` uses generic substitutes with correct brand colors.
+- **Sidebar:** 220px fixed, 64px collapsed. Background `--bg-sidebar: #181B20`. Account health dots below nav.
+- **Reliability signals:** `PublishFailureBanner` in dashboard layout fetches `/api/publish-jobs?status=FAILED&acknowledged=false`.
 
 ---
 
@@ -81,7 +81,8 @@ See `LEDGER.md` for the full chronological record. Key decisions:
 - **Postgres DB user is `1p2p`** — not the default `postgres`.
 - **Google OAuth via Passport.js** — `passwordHash` is nullable to support passwordless login paths.
 - **ARM64 server** — all Docker images must be ARM64-compatible. Do not switch to alpine variants.
-- **shadcn/ui adoption** — Tailwind v4 (already installed) + Radix UI. Replaces the current mixed vanilla CSS / inline styles approach. Decision locked in Phase 9.
+- **shadcn/ui adoption** — Tailwind v4 + Radix UI. Done in Phase 10. `components.json` + `tailwind.config.ts` + `lib/utils.ts` in place. 18 shadcn components installed.
+- **Tailwind v4 @config path** — `globals.css` lives in `app/`. The `@config` directive path is relative to the CSS file: `@config "../tailwind.config.ts"` (note the `..`). Easy to get wrong; the production build will fail silently if the path is wrong.
 
 ---
 
@@ -113,22 +114,34 @@ docs/
 
 See `ROADMAP.md` for full phase breakdown.
 
-**Phase 10 — Design System & UI Overhaul (IMMEDIATE NEXT):**
-- Adopt shadcn/ui component library (Tailwind v4 + Radix UI)
-- Migrate accent color to blue (#4F6EF7)
-- Replace emoji nav with Lucide icons
-- Rebuild post composer with side-by-side platform preview pane
-- Redesign inbox as 3-panel layout with sentiment badges
-- Add account health indicators to sidebar
-- Add failure surfacing (global banner + publish queue prominence)
-- Skeleton screens for all loading states
+**Phase 10 — Design System & UI Overhaul (COMPLETE 2026-04-24):**
+- ✅ shadcn/ui + Radix UI + Tailwind v4 fully configured (`components.json`, `tailwind.config.ts`, `lib/utils.ts`)
+- ✅ Blue accent #4F6EF7 replacing legacy purple #7c5cfc everywhere
+- ✅ Lucide icon navigation (21 items) replacing emoji
+- ✅ Post composer rebuilt as two-column layout with live platform preview + character counters
+- ✅ Inbox redesigned as 3-panel layout (platform filter | thread list | thread view) with sentiment badges
+- ✅ Account health indicators in sidebar (green/amber/red dots from `/api/social-accounts`)
+- ✅ Global failure banner (fetches failed publish jobs, dismissible)
+- ✅ Skeleton loading in dashboard overview (stat cards + table rows)
+- ✅ Sidebar 220px (down from 240px), collapsed 64px (down from 80px), bg `#181B20`
+- ✅ Inter + Plus Jakarta Sans typography, 13px base font-size
+- ✅ Zero undefined CSS variable references across all `.tsx` files
 
-**Phase 11 — Feature Completeness & Polish:**
-- Calendar drag-and-drop
-- Bulk operations (schedule many posts, CSV import)
-- AI Studio (caption generation via Anthropic claude-haiku-4-5)
-- Analytics chart visualizations
+**Remaining work NOT completed in Phase 10 (roll into Phase 11):**
+- Skeleton loading on all other dashboard pages (only `dashboard/page.tsx` done; 20 pages remain)
+- Inbox reply sending is stubbed — Send Reply button renders but doesn't call an API
+- Publish Queue page prominence improvements
+
+**Phase 11 — Feature Completeness & Polish (IMMEDIATE NEXT):**
+- Calendar drag-and-drop rescheduling
+- Bulk operations (multi-select posts, CSV import)
+- AI Studio caption generation (Anthropic claude-haiku-4-5)
+- Analytics chart visualizations (line/bar engagement)
 - Mobile-responsive layouts (full, not just sidebar collapse)
+- Skeleton loading for all remaining dashboard pages
+- Inbox reply sending wired to platform APIs
+- Hashtag suggestions in composer
+- Form validation consistency across all forms
 
 **Phase 12 — Billing & Monetization (Launch Blocker):**
 - Stripe Billing (subscriptions, trials, upgrades, downgrades)
@@ -175,5 +188,6 @@ See `ROADMAP.md` for full phase breakdown.
 - Port 7432 is the Command Center dashboard on the same server — don't use it for 1P2P test servers
 - The `proxy` Docker network is external and shared; create it with `docker network create proxy` if missing
 - `n8n_data/config` (56 bytes) excluded from OneDrive backup — n8n regenerates automatically
-- Tailwind v4 is installed but not yet configured — full setup is Phase 10 Task 1
-- shadcn/ui requires `components.json` initialization (`npx shadcn@latest init`) before installing components
+- Tailwind v4 configured: `tailwind.config.ts` exists, `@config "../tailwind.config.ts"` in `app/globals.css` (path is relative to CSS file, not package root)
+- shadcn/ui initialized: `components.json` present, 18 components in `components/ui/`, `lib/utils.ts` with `cn()` helper
+- `class-variance-authority` must be listed as a dependency — shadcn CLI does not auto-install it for Tailwind v4 projects
