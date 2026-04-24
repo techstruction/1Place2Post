@@ -193,7 +193,7 @@ a:hover {
 .nav-item.active {
   background: var(--accent);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(124, 92, 252, 0.25);
+  box-shadow: 0 2px 8px rgba(79, 110, 247, 0.25);
 }
 
 .main-content {
@@ -430,7 +430,7 @@ tr:hover td {
   align-items: center;
   justify-content: center;
   background: var(--bg);
-  background-image: radial-gradient(ellipse at 60% 20%, rgba(124, 92, 252, 0.08) 0%, transparent 60%);
+  background-image: radial-gradient(ellipse at 60% 20%, rgba(79, 110, 247, 0.08) 0%, transparent 60%);
 }
 
 .auth-box {
