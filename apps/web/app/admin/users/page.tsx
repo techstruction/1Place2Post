@@ -63,7 +63,7 @@ export default function AdminUsersPage() {
     return (
         <div>
             <div style={{ marginBottom: '1.5rem' }}>
-                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-heading)', marginBottom: '0.4rem' }}>User Management</h1>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>User Management</h1>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                     {users.length} registered users · Edit roles and manage accounts.
                 </p>
@@ -104,7 +104,7 @@ export default function AdminUsersPage() {
                                 {filtered.map(user => (
                                     <tr key={user.id}>
                                         <td>
-                                            <div style={{ fontWeight: 600, color: 'var(--color-heading)' }}>{user.name ?? 'No name'}</div>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{user.name ?? 'No name'}</div>
                                             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user.email}</div>
                                         </td>
                                         <td>

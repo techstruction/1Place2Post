@@ -26,7 +26,7 @@ export default function AdminAuditLogsPage() {
     return (
         <div>
             <div style={{ marginBottom: '1.5rem' }}>
-                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-heading)', marginBottom: '0.4rem' }}>Audit Logs</h1>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>Audit Logs</h1>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                     Read-only record of all administrative actions taken on the platform.
                 </p>

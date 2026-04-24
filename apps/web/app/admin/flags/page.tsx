@@ -48,7 +48,7 @@ export default function AdminFlagsPage() {
     return (
         <div>
             <div style={{ marginBottom: '1.5rem' }}>
-                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-heading)', marginBottom: '0.4rem' }}>Feature Flags</h1>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>Feature Flags</h1>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                     Toggle platform features without deploying code. Changes take effect immediately.
                 </p>
@@ -69,7 +69,7 @@ export default function AdminFlagsPage() {
                             alignItems: 'center',
                         }}>
                             <div>
-                                <div style={{ fontWeight: 600, color: 'var(--color-heading)', fontFamily: 'monospace', fontSize: '0.9rem' }}>{flag.key}</div>
+                                <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'monospace', fontSize: '0.9rem' }}>{flag.key}</div>
                                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{flag.description}</div>
                             </div>
                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', userSelect: 'none' }}>

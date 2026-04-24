@@ -32,13 +32,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }, [router]);
 
     if (!authorized) return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-main)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-base)' }}>
             <p style={{ color: 'var(--text-dim)' }}>Verifying admin access…</p>
         </div>
     );
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-main)', fontFamily: 'var(--font-body, Inter, sans-serif)' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-base)', fontFamily: 'var(--font-ui)' }}>
             {/* Sidebar */}
             <aside style={{
                 width: 240,
@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '0.25rem' }}>
                         1Place2Post
                     </div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-heading)' }}>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                         🔒 Admin Console
                     </div>
                 </div>
@@ -71,7 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 borderRadius: '8px',
                                 fontSize: '0.9rem',
                                 fontWeight: active ? 600 : 400,
-                                color: active ? 'var(--primary)' : 'var(--text-dim)',
+                                color: active ? 'var(--brand-500)' : 'var(--text-dim)',
                                 backgroundColor: active ? 'rgba(111, 66, 193, 0.1)' : 'transparent',
                                 textDecoration: 'none',
                                 transition: 'all 0.15s',

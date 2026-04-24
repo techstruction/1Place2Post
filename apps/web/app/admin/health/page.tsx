@@ -46,7 +46,7 @@ export default function AdminHealthPage() {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div>
-                    <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-heading)', marginBottom: '0.4rem' }}>Platform Health</h1>
+                    <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>Platform Health</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Live status of core system components.</p>
                 </div>
                 <button className="btn btn-ghost" onClick={refresh} disabled={loading}>🔄 Refresh</button>
@@ -68,7 +68,7 @@ export default function AdminHealthPage() {
                         alignItems: 'center',
                     }}>
                         <div>
-                            <div style={{ fontWeight: 600, color: 'var(--color-heading)' }}>{row.label}</div>
+                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{row.label}</div>
                             <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>{row.detail}</div>
                         </div>
                         {loading ? <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Checking…</span> : <HealthBadge ok={!error && row.ok} />}

@@ -46,7 +46,7 @@ export default function AdminOverviewPage() {
     return (
         <div>
             <div style={{ marginBottom: '2rem' }}>
-                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-heading)', marginBottom: '0.4rem' }}>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                     Overview
                 </h1>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
@@ -66,9 +66,9 @@ export default function AdminOverviewPage() {
             )}
 
             <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', padding: '1.5rem' }}>
-                <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.8rem', color: 'var(--color-heading)' }}>Quick Actions</h2>
+                <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.8rem', color: 'var(--text-primary)' }}>Quick Actions</h2>
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <a href="/admin/users" style={{ padding: '0.6rem 1.2rem', backgroundColor: 'rgba(111, 66, 193, 0.12)', borderRadius: 8, color: 'var(--primary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>
+                    <a href="/admin/users" style={{ padding: '0.6rem 1.2rem', backgroundColor: 'rgba(111, 66, 193, 0.12)', borderRadius: 8, color: 'var(--brand-500)', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>
                         Manage Users →
                     </a>
                     <a href="/admin/flags" style={{ padding: '0.6rem 1.2rem', backgroundColor: 'rgba(5, 150, 105, 0.1)', borderRadius: 8, color: '#059669', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>
