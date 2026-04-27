@@ -31,6 +31,7 @@ import { InstagramModule } from './social/instagram/instagram.module';
 import { TwitterModule } from './social/twitter/twitter.module';
 import { LinkedinModule } from './social/linkedin/linkedin.module';
 import { McpModule } from './mcp/mcp.module';
+import { TokenHealthModule } from './token-health/token-health.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { McpModule } from './mcp/mcp.module';
     TwitterModule,
     LinkedinModule,
     McpModule,
+    TokenHealthModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
