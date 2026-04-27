@@ -3,10 +3,12 @@
 
 :root {
   /* ── Brand ── */
-  --brand-500: #4F6EF7;
-  --brand-400: #7089F9;
-  --brand-600: #3A56E8;
-  --brand-muted: rgba(79, 110, 247, 0.15);
+  --brand-500: #E06028;
+  --brand-400: #F07038;
+  --brand-600: #C85020;
+  --brand-muted: rgba(224, 96, 40, 0.15);
+  --brand-secondary: #4B8EC4;
+  --brand-secondary-muted: rgba(75, 142, 196, 0.15);
 
   /* ── Backgrounds ── */
   --bg-base: #0a0a0f;
@@ -464,6 +466,7 @@ tr:hover td {
 .page-title {
   font-size: 1.4rem;
   font-weight: 700;
+  color: var(--brand-secondary);
 }
 
 /* ── Error / alert ── */
