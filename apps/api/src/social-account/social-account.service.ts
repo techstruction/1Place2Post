@@ -1,27 +1,34 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { TokenHealthService } from '../token-health/token-health.service';
 import { CreateSocialAccountDto } from './dto/create-social-account.dto';
-
-const TOKEN_EXPIRY_WARNING_DAYS = 7;
 
 @Injectable()
 export class SocialAccountService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private tokenHealth: TokenHealthService,
+    ) {}
 
     async findAll(userId: string) {
-        const accounts = await this.prisma.socialAccount.findMany({
+        return this.prisma.socialAccount.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                platform: true,
+                platformId: true,
+                username: true,
+                displayName: true,
+                tokenExpiry: true,
+                tokenStatus: true,
+                isActive: true,
+                scopes: true,
+                metaJson: true,
+                createdAt: true,
+                updatedAt: true,
+            },
         });
-
-        const now = new Date();
-        const warnThreshold = new Date(now.getTime() + TOKEN_EXPIRY_WARNING_DAYS * 24 * 60 * 60 * 1000);
-
-        return accounts.map(a => ({
-            ...a,
-            tokenExpiring: a.tokenExpiry ? a.tokenExpiry < warnThreshold : false,
-            tokenExpired: a.tokenExpiry ? a.tokenExpiry < now : false,
-        }));
     }
 
     create(userId: string, dto: CreateSocialAccountDto) {
@@ -38,6 +45,28 @@ export class SocialAccountService {
                 scopes: dto.scopes ?? [],
             },
         });
+    }
+
+    async updateTokens(
+        userId: string,
+        id: string,
+        tokens: { accessToken: string; refreshToken?: string | null; tokenExpiry?: Date | null },
+    ): Promise<void> {
+        const account = await this.prisma.socialAccount.findUnique({ where: { id } });
+        if (!account) throw new NotFoundException('Social account not found');
+        if (account.userId !== userId) throw new ForbiddenException();
+
+        await this.prisma.socialAccount.update({
+            where: { id },
+            data: {
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken ?? account.refreshToken,
+                tokenExpiry: tokens.tokenExpiry ?? account.tokenExpiry,
+                tokenStatus: 'ACTIVE',
+            },
+        });
+
+        await this.tokenHealth.unblockJobsForAccount(id);
     }
 
     async remove(userId: string, id: string) {
