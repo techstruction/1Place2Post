@@ -106,22 +106,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
         {/* Logo */}
         <div className="sidebar-logo">
-          <span className="logo-icon" style={{ cursor: 'pointer', marginRight: isCollapsed ? 0 : 10 }}>1</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="1Place2Post"
+            style={{ width: 32, height: 32, borderRadius: 7, flexShrink: 0, cursor: 'pointer' }}
+          />
           {!isCollapsed && (
             <>
-              <span className="logo-text">Place</span>
-              <span className="nav-item-label">2Post</span>
+              <span style={{ fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.02em', whiteSpace: 'nowrap', marginLeft: 9 }}>
+                <span style={{ color: '#E06028' }}>1</span>
+                <span style={{ color: '#4B8EC4' }}>Place</span>
+                <span style={{ color: '#E06028' }}>2</span>
+                <span style={{ color: '#4B8EC4' }}>Post</span>
+              </span>
+              <button
+                className="sidebar-toggle-btn"
+                onClick={() => setIsCollapsed(true)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginLeft: 'auto' }}
+                title="Collapse"
+              >
+                <ChevronLeft size={18} />
+              </button>
             </>
-          )}
-          {!isCollapsed && (
-            <button
-              className="sidebar-toggle-btn"
-              onClick={() => setIsCollapsed(true)}
-              style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginLeft: 'auto' }}
-              title="Collapse"
-            >
-              <ChevronLeft size={18} />
-            </button>
           )}
         </div>
 
