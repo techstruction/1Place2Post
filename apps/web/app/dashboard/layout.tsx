@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { AccountHealthDot, getAccountHealth } from '../../components/AccountHealthDot';
 import { PublishFailureBanner } from '../../components/PublishFailureBanner';
+import { ThemeToggle } from '../../components/theme-toggle';
 
 type SocialAccount = {
   id: string;
@@ -207,17 +208,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         )}
 
-        {/* Logout */}
-        <button
-          id="logout-btn"
-          onClick={logout}
-          className="nav-item btn-ghost"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', marginTop: 8 }}
-          title="Log out"
-        >
-          <LogOut size={17} style={{ flexShrink: 0 }} />
-          <span className="nav-item-label">Log out</span>
-        </button>
+        {/* Theme toggle + Logout */}
+        <div style={{ marginTop: 8 }}>
+          <ThemeToggle collapsed={isCollapsed} />
+          <button
+            id="logout-btn"
+            onClick={logout}
+            className="nav-item btn-ghost"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
+            title="Log out"
+          >
+            <LogOut size={17} style={{ flexShrink: 0 }} />
+            <span className="nav-item-label">Log out</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main content area */}
