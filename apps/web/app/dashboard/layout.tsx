@@ -105,16 +105,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="layout">
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
         {/* Logo */}
-        <div className="sidebar-logo">
+        <div className="sidebar-logo" style={{ cursor: 'pointer' }} onClick={() => router.push('/dashboard')}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
             alt="1Place2Post"
-            style={{ width: 32, height: 32, borderRadius: 7, flexShrink: 0, cursor: 'pointer' }}
+            style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, objectFit: 'cover' }}
           />
           {!isCollapsed && (
             <>
-              <span style={{ fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.02em', whiteSpace: 'nowrap', marginLeft: 9 }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.03em', whiteSpace: 'nowrap', marginLeft: 10, lineHeight: 1 }}>
                 <span style={{ color: '#E06028' }}>1</span>
                 <span style={{ color: '#4B8EC4' }}>Place</span>
                 <span style={{ color: '#E06028' }}>2</span>
@@ -122,7 +122,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </span>
               <button
                 className="sidebar-toggle-btn"
-                onClick={() => setIsCollapsed(true)}
+                onClick={e => { e.stopPropagation(); setIsCollapsed(true); }}
                 style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginLeft: 'auto' }}
                 title="Collapse"
               >
