@@ -16,6 +16,32 @@ export class PublishQueueService {
         private webhooks: OutgoingWebhookService,
     ) { }
 
+    /** Enqueue via BullMQ for millisecond-precision delayed scheduling.
+     *  Falls back to Postgres polling queue if Redis is unavailable. */
+    async enqueueBull(postId: string, platform: string, runAt?: Date): Promise<void> {
+        try {
+            const { Queue } = await import('bullmq');
+            const queueName = `publish-${platform.toLowerCase()}`;
+            const delayMs = runAt ? Math.max(0, runAt.getTime() - Date.now()) : 0;
+            const q = new Queue(queueName, {
+                connection: { url: process.env.REDIS_URL || 'redis://localhost:6379' },
+            });
+            await q.add('publish', { postId, platform }, {
+                delay: delayMs,
+                attempts: 5,
+                backoff: { type: 'exponential', delay: 2 * 60 * 1000 },
+                removeOnComplete: 100,
+                removeOnFail: 500,
+                jobId: `post-${postId}-${platform}`,
+            });
+            await q.close();
+        } catch (err: any) {
+            // Redis unavailable — Postgres polling fallback will handle it
+            this.log.warn(`BullMQ enqueue failed, falling back to Postgres queue: ${err.message}`);
+            await this.enqueue(postId, runAt);
+        }
+    }
+
     /** Upsert a publish job for a post */
     async enqueue(postId: string, runAt?: Date) {
         const nextRunAt = runAt ?? new Date();
