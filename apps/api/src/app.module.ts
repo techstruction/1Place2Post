@@ -32,6 +32,7 @@ import { TwitterModule } from './social/twitter/twitter.module';
 import { LinkedinModule } from './social/linkedin/linkedin.module';
 import { McpModule } from './mcp/mcp.module';
 import { TokenHealthModule } from './token-health/token-health.module';
+import { RateLimitModule } from './rate-limit/rate-limit.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { TokenHealthModule } from './token-health/token-health.module';
     LinkedinModule,
     McpModule,
     TokenHealthModule,
+    RateLimitModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
