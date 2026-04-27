@@ -89,6 +89,10 @@ export class PublishQueueService {
                 ]);
                 await this.notifications.notify(job.post.userId, 'PUBLISH_SUCCESS', '✅ Post published', `"${job.post.caption.slice(0, 60)}"`, { postId: job.postId });
                 this.webhooks.fire(job.post.userId, 'post.published', { postId: job.postId });
+                // Schedule post-publish verification (fire-and-forget — non-blocking)
+                this.scheduleVerification(job).catch(e =>
+                    this.log.warn(`Verification schedule failed for job ${job.id}: ${e.message}`)
+                );
             } catch (err: any) {
                 const errorClass = classifyError({
                     status: err?.response?.status ?? err?.status,
@@ -165,5 +169,37 @@ export class PublishQueueService {
         // Simulate 50ms processing delay
         await new Promise(r => setTimeout(r, 50));
         // Uncomment to test failure path: throw new Error('Platform rate limit (mock)');
+    }
+
+    private scheduleVerification(job: any): Promise<void> {
+        return new Promise<void>(resolve => {
+            setTimeout(async () => {
+                try {
+                    const verified = await this.verifyPublished(job);
+                    if (!verified) {
+                        await this.prisma.postPublishJob.update({
+                            where: { id: job.id },
+                            data: { status: 'VERIFY_FAILED' },
+                        });
+                        await this.notifications.notify(
+                            job.post.userId,
+                            'PUBLISH_VERIFY_FAILED',
+                            '⚠️ Post may not have published',
+                            'Your post was sent to the platform but could not be confirmed as visible. Check your account directly.',
+                            { postId: job.postId },
+                        );
+                    }
+                } catch (e: any) {
+                    this.log.warn(`Post-publish verification error for job ${job.id}: ${e.message}`);
+                }
+                resolve();
+            }, 30_000);
+        });
+    }
+
+    protected async verifyPublished(_job: any): Promise<boolean> {
+        // Base implementation trusts the 2xx response (mock mode).
+        // Real platform services override this per platform.
+        return true;
     }
 }
