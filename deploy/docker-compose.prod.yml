@@ -10,6 +10,9 @@ services:
       - NODE_ENV=production
       - APP_ENV=prod
       - PORT=35763
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "wget", "-qO-", "http://localhost:35763/api/health" ]
