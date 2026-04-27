@@ -18,39 +18,24 @@
 | 7 | Interactive Developer Manuals | 2026-02-24 |
 | 8 | Google Identity & Platform Security | 2026-02-25 |
 | 9 | Strategic Research & Competitive Analysis | 2026-04-24 |
+| 10 | Design System & UI Overhaul | 2026-04-24 |
+| 11 | Publishing Reliability Infrastructure | 2026-04-27 |
 
 ---
 
 ## Active & Upcoming Phases
 
-### Phase 10 — Design System & UI Overhaul
-**Status:** 🔴 Next — Immediate priority
-**Goal:** Replace the ad-hoc inline-style / vanilla CSS approach with a cohesive, maintainable design system. Deliver a UI that feels beautiful, professional, and trustworthy.
+### Phase 12 — Small UI Polish ← NEXT
+**Status:** 🟡 In progress
+**Goal:** Targeted visual and UX improvements to the dashboard before production rebuild. Small changes — no new architecture.
 
-**Deliverables:**
-- shadcn/ui + Radix UI + Tailwind v4 fully configured
-- Full component library (Button, Input, Modal, Dropdown, Badge, Card, Table, Skeleton, Toast)
-- Blue accent color scheme (#4F6EF7) across all pages
-- Dark sidebar (#181B20) with Lucide icon navigation (no emoji)
-- Account health indicators (amber/red dots for disconnected/expired tokens)
-- Post composer with side-by-side platform preview pane
-- Inbox redesigned as 3-panel layout with sentiment badges
-- Global "failed posts" alert banner
-- Skeleton loading screens throughout
-- 220px sidebar (down from 240px)
-- Inter + Plus Jakarta Sans typography
-
-**Key files:**
-- `apps/web/components/ui/` — New shadcn/ui component directory
-- `apps/web/app/globals.css` — Updated CSS tokens
-- `apps/web/tailwind.config.ts` — Full Tailwind config (create)
-- `apps/web/components.json` — shadcn/ui init config (create)
-
-**Reference:** `docs/DESIGN_SYSTEM.md`
+**Scope (to be defined at session start):**
+- Additional UI improvements identified after Phase 10/11 review
+- Production container rebuild after merge
 
 ---
 
-### Phase 11 — Feature Completeness & Polish
+### Phase 13 — Feature Completeness & Polish
 **Status:** ⚪ Planned
 **Goal:** Close the feature gaps identified in the UX audit and competitive research.
 
@@ -62,11 +47,12 @@
 - Analytics: chart visualizations (line/bar for engagement over time)
 - Lead pipeline: Kanban drag-and-drop
 - Mobile-responsive layouts (full, not just sidebar collapse)
+- Skeleton loading screens on remaining 18 dashboard pages (only overview done)
 - Form validation: consistent client-side patterns across all forms
 
 ---
 
-### Phase 12 — Billing & Monetization ⚠ LAUNCH BLOCKER
+### Phase 14 — Billing & Monetization ⚠ LAUNCH BLOCKER
 **Status:** ⚪ Planned
 **Goal:** Stripe integration enabling paid subscriptions. Cannot acquire real paying customers without this.
 
@@ -88,7 +74,7 @@
 
 ---
 
-### Phase 13 — Testing & QA (Stage I)
+### Phase 15 — Testing & QA (Stage I)
 **Status:** ⚪ Planned
 **Goal:** Establish confidence in correctness before scaling traffic.
 
@@ -101,7 +87,7 @@
 
 ---
 
-### Phase 14 — Scale & Reliability
+### Phase 16 — Scale & Reliability (Remaining)
 **Status:** ⚪ Planned
 
 **Deliverables:**
@@ -113,7 +99,7 @@
 
 ---
 
-### Phase 15 — AI Agents
+### Phase 17 — AI Agents
 **Status:** ⚪ Planned
 
 **Deliverables:**
@@ -124,7 +110,7 @@
 
 ---
 
-### Phase 16 — Enterprise & Ecosystem
+### Phase 18 — Enterprise & Ecosystem
 **Status:** ⚪ Planned (Future)
 
 **Deliverables:**
@@ -139,9 +125,11 @@
 ## Launch Criteria
 
 Before public launch / paid customer acquisition:
-- [ ] Phase 10 complete (UI is beautiful and usable)
-- [ ] Phase 12 complete (Stripe billing live)
-- [ ] Phase 13 in progress (core tests passing)
-- [ ] Publish success rate ≥ 99% over 30-day window
+- [x] Phase 10 complete (UI design system shipped)
+- [x] Phase 11 complete (reliability infrastructure — "posts that actually post")
+- [ ] Phase 12 complete (UI polish + production rebuild)
+- [ ] Phase 14 complete (Stripe billing live)
+- [ ] Phase 15 in progress (core tests passing)
+- [ ] Publish success rate ≥ 99% over 30-day window (requires real platform API integration)
 - [ ] Pricing page live
 - [ ] Onboarding: signup → connect account → schedule first post in ≤ 5 min
