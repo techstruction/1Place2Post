@@ -80,87 +80,120 @@ export class PublishQueueService {
         for (const job of jobs) {
             // Lock
             await this.prisma.postPublishJob.update({ where: { id: job.id }, data: { status: 'RUNNING', lockedAt: new Date() } });
-            try {
-                await this.mockPublish(job);
-                await this.prisma.$transaction([
-                    this.prisma.postPublishJob.update({ where: { id: job.id }, data: { status: 'SUCCESS', lockedAt: null, lastError: null } }),
-                    this.prisma.post.update({ where: { id: job.postId }, data: { status: 'PUBLISHED', publishedAt: new Date() } }),
-                    this.prisma.postLog.create({ data: { postId: job.postId, type: 'INFO', message: 'Post published successfully (mock)' } }),
-                ]);
-                await this.notifications.notify(job.post.userId, 'PUBLISH_SUCCESS', '✅ Post published', `"${job.post.caption.slice(0, 60)}"`, { postId: job.postId });
-                this.webhooks.fire(job.post.userId, 'post.published', { postId: job.postId });
-                // Schedule post-publish verification (fire-and-forget — non-blocking)
-                this.scheduleVerification(job).catch(e =>
-                    this.log.warn(`Verification schedule failed for job ${job.id}: ${e.message}`)
-                );
-            } catch (err: any) {
-                const errorClass = classifyError({
-                    status: err?.response?.status ?? err?.status,
-                    code: err?.code,
-                    retryAfterSeconds: err?.response?.headers?.['retry-after']
-                        ? parseInt(err.response.headers['retry-after'], 10)
-                        : undefined,
-                });
+            await this.runJob(job);
+        }
+    }
 
-                const permanent = isPermanent(errorClass);
-                const newAttempts = job.attempts + 1;
-                const exhausted = permanent || newAttempts >= job.maxAttempts;
+    /** Process jobs for a specific platform — one platform's failure never blocks another. */
+    async processJobsForPlatform(platform: string, concurrency = 3) {
+        const now = new Date();
+        const jobs = await this.prisma.postPublishJob.findMany({
+            where: {
+                status: { in: ['PENDING', 'RETRY'] },
+                nextRunAt: { lte: now },
+                lockedAt: null,
+                post: {
+                    platforms: {
+                        some: { socialAccount: { platform: platform as any } },
+                    },
+                },
+            },
+            take: concurrency,
+            include: { post: { select: { id: true, userId: true, caption: true } } },
+        });
+        if (jobs.length === 0) return 0;
 
-                // TOKEN_EXPIRED → BLOCKED (preserve the job, don't mark it failed)
-                // Other permanent/exhausted → FAILED
-                // Still retrying → RETRY
-                const nextStatus = exhausted
-                    ? (errorClass === 'TOKEN_EXPIRED' ? 'BLOCKED' : 'FAILED')
-                    : 'RETRY';
+        await this.prisma.postPublishJob.updateMany({
+            where: { id: { in: jobs.map(j => j.id) } },
+            data: { status: 'RUNNING', lockedAt: new Date() },
+        });
 
-                const retryAfterSeconds = err?.response?.headers?.['retry-after']
+        await Promise.allSettled(jobs.map(job => this.runJob(job)));
+        return jobs.length;
+    }
+
+    /** Execute a single job: publish, handle success/failure. */
+    private async runJob(job: any) {
+        try {
+            await this.mockPublish(job);
+            await this.prisma.$transaction([
+                this.prisma.postPublishJob.update({ where: { id: job.id }, data: { status: 'SUCCESS', lockedAt: null, lastError: null } }),
+                this.prisma.post.update({ where: { id: job.postId }, data: { status: 'PUBLISHED', publishedAt: new Date() } }),
+                this.prisma.postLog.create({ data: { postId: job.postId, type: 'INFO', message: 'Post published successfully (mock)' } }),
+            ]);
+            await this.notifications.notify(job.post.userId, 'PUBLISH_SUCCESS', '✅ Post published', `"${job.post.caption.slice(0, 60)}"`, { postId: job.postId });
+            this.webhooks.fire(job.post.userId, 'post.published', { postId: job.postId });
+            // Schedule post-publish verification (fire-and-forget — non-blocking)
+            this.scheduleVerification(job).catch(e =>
+                this.log.warn(`Verification schedule failed for job ${job.id}: ${e.message}`)
+            );
+        } catch (err: any) {
+            const errorClass = classifyError({
+                status: err?.response?.status ?? err?.status,
+                code: err?.code,
+                retryAfterSeconds: err?.response?.headers?.['retry-after']
                     ? parseInt(err.response.headers['retry-after'], 10)
-                    : undefined;
-                const backoffMs = exhausted ? 0 : retryDelayMs(errorClass, newAttempts, retryAfterSeconds);
+                    : undefined,
+            });
 
-                await this.prisma.$transaction([
-                    this.prisma.postPublishJob.update({
-                        where: { id: job.id },
-                        data: {
-                            status: nextStatus,
-                            attempts: newAttempts,
-                            lockedAt: null,
-                            lastError: err.message,
-                            errorClass,
-                            nextRunAt: exhausted ? new Date() : new Date(Date.now() + backoffMs),
-                        },
-                    }),
-                    this.prisma.post.update({
-                        where: { id: job.postId },
-                        data: {
-                            status: nextStatus === 'BLOCKED' ? 'SCHEDULED' : (exhausted ? 'FAILED' : 'SCHEDULED'),
-                        },
-                    }),
-                    this.prisma.postLog.create({
-                        data: {
-                            postId: job.postId,
-                            type: 'ERROR',
-                            message: `Publish ${nextStatus} (attempt ${newAttempts}/${job.maxAttempts}) [${errorClass}]: ${err.message}`,
-                        },
-                    }),
-                ]);
+            const permanent = isPermanent(errorClass);
+            const newAttempts = job.attempts + 1;
+            const exhausted = permanent || newAttempts >= job.maxAttempts;
 
-                if (nextStatus === 'FAILED') {
-                    await this.notifications.notify(
-                        job.post.userId, 'PUBLISH_FAILED', '❌ Post publish failed',
-                        `Gave up after ${job.maxAttempts} attempts [${errorClass}]. Last error: ${err.message}`,
-                        { postId: job.postId },
-                    );
-                }
-                if (nextStatus === 'BLOCKED') {
-                    await this.notifications.notify(
-                        job.post.userId, 'PUBLISH_BLOCKED', '🔒 Post blocked — account needs reconnection',
-                        'A post could not be published because the connected account token has expired. Reconnect your account to unblock.',
-                        { postId: job.postId },
-                    );
-                }
-                this.log.error(`Job ${job.id} → ${nextStatus} [${errorClass}] (attempt ${newAttempts}): ${err.message}`);
+            // TOKEN_EXPIRED → BLOCKED (preserve the job, don't mark it failed)
+            // Other permanent/exhausted → FAILED
+            // Still retrying → RETRY
+            const nextStatus = exhausted
+                ? (errorClass === 'TOKEN_EXPIRED' ? 'BLOCKED' : 'FAILED')
+                : 'RETRY';
+
+            const retryAfterSeconds = err?.response?.headers?.['retry-after']
+                ? parseInt(err.response.headers['retry-after'], 10)
+                : undefined;
+            const backoffMs = exhausted ? 0 : retryDelayMs(errorClass, newAttempts, retryAfterSeconds);
+
+            await this.prisma.$transaction([
+                this.prisma.postPublishJob.update({
+                    where: { id: job.id },
+                    data: {
+                        status: nextStatus,
+                        attempts: newAttempts,
+                        lockedAt: null,
+                        lastError: err.message,
+                        errorClass,
+                        nextRunAt: exhausted ? new Date() : new Date(Date.now() + backoffMs),
+                    },
+                }),
+                this.prisma.post.update({
+                    where: { id: job.postId },
+                    data: {
+                        status: nextStatus === 'BLOCKED' ? 'SCHEDULED' : (exhausted ? 'FAILED' : 'SCHEDULED'),
+                    },
+                }),
+                this.prisma.postLog.create({
+                    data: {
+                        postId: job.postId,
+                        type: 'ERROR',
+                        message: `Publish ${nextStatus} (attempt ${newAttempts}/${job.maxAttempts}) [${errorClass}]: ${err.message}`,
+                    },
+                }),
+            ]);
+
+            if (nextStatus === 'FAILED') {
+                await this.notifications.notify(
+                    job.post.userId, 'PUBLISH_FAILED', '❌ Post publish failed',
+                    `Gave up after ${job.maxAttempts} attempts [${errorClass}]. Last error: ${err.message}`,
+                    { postId: job.postId },
+                );
             }
+            if (nextStatus === 'BLOCKED') {
+                await this.notifications.notify(
+                    job.post.userId, 'PUBLISH_BLOCKED', '🔒 Post blocked — account needs reconnection',
+                    'A post could not be published because the connected account token has expired. Reconnect your account to unblock.',
+                    { postId: job.postId },
+                );
+            }
+            this.log.error(`Job ${job.id} → ${nextStatus} [${errorClass}] (attempt ${newAttempts}): ${err.message}`);
         }
     }
 

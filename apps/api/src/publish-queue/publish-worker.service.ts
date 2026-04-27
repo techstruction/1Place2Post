@@ -6,19 +6,24 @@ export class PublishWorkerService implements OnModuleInit, OnModuleDestroy {
     private readonly log = new Logger(PublishWorkerService.name);
     private timer: ReturnType<typeof setInterval> | null = null;
     private backfillTimer: ReturnType<typeof setInterval> | null = null;
+    private readonly PLATFORMS = ['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK', 'YOUTUBE', 'FACEBOOK'];
 
     constructor(private queue: PublishQueueService) { }
 
     onModuleInit() {
-        this.log.log('Publish worker started — polling every 15s');
+        this.log.log('Publish worker started — polling every 15s (per-platform isolation)');
         // Run once on boot
         this.queue.backfill(200).then(n => n > 0 && this.log.log(`Backfilled ${n} jobs`));
-        this.queue.processJobs(5).catch(e => this.log.error('Initial process failed', e));
+        Promise.allSettled(this.PLATFORMS.map(p => this.queue.processJobsForPlatform(p, 3)))
+            .catch(e => this.log.error('Initial process failed', e));
 
-        // Main polling loop  
+        // Main polling loop — process each platform independently
         this.timer = setInterval(async () => {
-            try { await this.queue.processJobs(5); }
-            catch (e) { this.log.error('Worker poll error', e); }
+            try {
+                await Promise.allSettled(
+                    this.PLATFORMS.map(platform => this.queue.processJobsForPlatform(platform, 3))
+                );
+            } catch (e) { this.log.error('Worker poll error', e); }
         }, 15_000);
 
         // Backfill + stale lock cleanup every 2 min
