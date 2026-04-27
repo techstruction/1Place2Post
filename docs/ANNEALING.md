@@ -238,6 +238,93 @@ The inbox and composer pages were rebuilt from scratch and don't have this issue
 
 ---
 
+---
+
+## Phase 12 — Brand Identity & UI Polish (2026-04-27)
+
+---
+
+### MISTAKE 16: Docker CMD path assumes `dist/main.js` but TypeScript outputs to `dist/src/main.js`
+
+**What happened:** `apps/api/Dockerfile` had `CMD ["node", "dist/main.js"]`. The NestJS app failed with `Cannot find module '/app/dist/main.js'`. The compiled file was actually at `dist/src/main.js`.
+
+**Why it's subtle:** When TypeScript's `rootDir` is not explicitly set in `tsconfig.json`, the compiler infers it as the common parent of all source files. With source in `src/`, the output structure mirrors the source: `src/main.ts` → `dist/src/main.js`. If `rootDir` were set to `"./src"`, the output would be `dist/main.js`. Our tsconfig does not set `rootDir`.
+
+**How to verify:**
+```bash
+docker run --rm <image> ls /app/dist/       # shows: prisma  src  tsconfig.build.tsbuildinfo
+docker run --rm <image> ls /app/dist/src/   # shows: main.js  main.d.ts  ...
+```
+
+**Fix:** `CMD ["node", "dist/src/main.js"]`
+
+**Rule:** After any NestJS Docker build, verify the CMD path by checking the actual dist output structure. If `tsconfig.json` has no `rootDir`, compiled files land in `dist/<source-dir>/`. If `rootDir: "./src"` is set, they land in `dist/` directly.
+
+---
+
+### MISTAKE 17: `@nestjs/schedule` requires Node ≥19 (`crypto.randomUUID()` global)
+
+**What happened:** The API container started successfully but crashed immediately with `ReferenceError: crypto is not defined` in `scheduler.orchestrator.js`. The Dockerfile was using `node:18-alpine`.
+
+**Why it's subtle:** `crypto` has been available in Node.js for years via `require('crypto')`. But `@nestjs/schedule` uses `crypto.randomUUID()` as a *global* (i.e., without `require`). This global was added in Node.js 19. Node 18 does not expose it globally. The `npm install` warnings during build listed several packages requiring `node >=20` — these were treated as warnings, not errors, so the build succeeded while the runtime failed.
+
+**Symptom:** Build passes, container starts, crashes in first milliseconds with `crypto is not defined`. Health check never passes.
+
+**Fix:** Upgrade Dockerfile base from `node:18-alpine` to `node:20-alpine`.
+
+**Rule:** Pay attention to `npm warn EBADENGINE` warnings during Docker builds. If packages require `node >=20`, the base image must be `node:20-alpine`. Check: `grep '"engines"' apps/api/node_modules/@nestjs/schedule/package.json`.
+
+---
+
+### MISTAKE 18: BullMQ `REDIS_URL` defaults to `localhost:6379` — fails inside Docker
+
+**What happened:** After fixing the CMD path and Node version, the API started but immediately crash-looped with `ECONNREFUSED ::1:6379`. The Redis container was running, but BullMQ couldn't find it.
+
+**Why it's subtle:** `BullQueueModule` default connection is `redis://localhost:6379`. Inside a Docker container, `localhost` resolves to the container itself (`::1`), not the Redis service. The Redis service is reachable at `redis://redis:6379` (Docker DNS, service name as hostname).
+
+**Fix:** Add `REDIS_URL=redis://redis:6379` to the API service's `environment` block in `docker-compose.prod.yml`. Also add `depends_on: - redis` to ensure Redis starts before the API.
+
+**Rule:** Never use `localhost` as a default for inter-container connections. Always document required environment variables in `.env.example`. When a service depends on another, declare it with `depends_on` in docker-compose.
+
+---
+
+### MISTAKE 19: nginx caches upstream container IPs at startup — 502 after container rebuild
+
+**What happened:** After rebuilding `1p_web_prod`, the app returned 502 errors. nginx error logs showed `connect() failed (111: Connection refused) while connecting to upstream http://172.21.0.3:3000/` — the old IP. The new container had IP `172.21.0.7`.
+
+**Why it's subtle:** nginx resolves hostnames in `proxy_pass` directives at config parse/startup time and caches them indefinitely. When a container is recreated it typically gets a new IP from Docker. nginx never re-queries DNS unless reloaded.
+
+**Immediate fix:** `docker exec 1p_nginx nginx -s reload`
+
+**Permanent fix:** Add Docker DNS resolver + upstream variable to nginx config:
+```nginx
+resolver 127.0.0.11 valid=10s ipv6=off;
+set $web_upstream http://1p_web_prod:3000;
+location / { proxy_pass $web_upstream; }
+```
+Using a variable for `proxy_pass` forces nginx to re-resolve DNS on each request (with the 10s TTL cache).
+
+**Rule:** Any nginx `proxy_pass` to Docker container hostnames must use `resolver 127.0.0.11` + a `set $var` pattern. Never use a literal `proxy_pass http://container-name:port` without a resolver — it works until the first container rebuild.
+
+**Also:** Always run `docker exec 1p_nginx nginx -s reload` after any container rebuild as standard practice. Add it to the rebuild runbook.
+
+---
+
+### MISTAKE 20: `next-themes` ThemeProvider causes React hydration mismatch without `suppressHydrationWarning`
+
+**What happened:** When wrapping `<html>` with `ThemeProvider`, next-themes injects a `class="dark"` (or `class="light"`) attribute on the `<html>` element at runtime. The server-rendered HTML doesn't have this class. React detects the mismatch and logs a warning: `Warning: Prop 'className' did not match`.
+
+**Fix:** Add `suppressHydrationWarning` to the `<html>` element in `layout.tsx`:
+```tsx
+<html lang="en" suppressHydrationWarning>
+```
+
+**Why it's correct:** `suppressHydrationWarning` tells React to ignore attribute mismatches on this element only. next-themes documents this as the required pattern — the class is intentionally set client-side to avoid a flash of wrong theme.
+
+**Rule:** Any time `next-themes` (or any theme provider that mutates the `<html>` element) is used, add `suppressHydrationWarning` to `<html>`. This is always required — not an edge case.
+
+---
+
 ## General Rules Extracted from Phase 10
 
 These are distilled from the above mistakes into standing rules for all future frontend work:
@@ -255,3 +342,8 @@ These are distilled from the above mistakes into standing rules for all future f
 | 9 | `loadData` pattern: move fetch into effect body, or use `useCallback` |
 | 10 | "All pages" means all pages — track a checklist for cross-cutting changes |
 | 11 | Run `npm run build` as the final test — not just `tsc --noEmit` |
+| 12 | Docker CMD path: check `dist/` structure — no `rootDir` in tsconfig → output mirrors source dir |
+| 13 | Check `EBADENGINE` npm warnings — if packages need Node ≥20, base image must be `node:20-alpine` |
+| 14 | Inter-container URLs use service hostnames, never `localhost` — `redis://redis:6379` not `redis://localhost:6379` |
+| 15 | nginx `proxy_pass` to Docker containers requires `resolver 127.0.0.11` + `set $var` to survive rebuilds |
+| 16 | `next-themes` always requires `suppressHydrationWarning` on `<html>` |

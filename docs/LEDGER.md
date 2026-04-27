@@ -46,6 +46,20 @@ This document maintains a chronological record of major architectural decisions,
 - **OAuth Infrastructure**: Bound Passport.js with the `google-oauth20` strategy inside the `AuthController`. Modified `passwordHash` to accept NULL integers in Prisma, establishing secure multi-factor or magic-login capabilities for the future.
 - **Admin Root Console**: Erected the `/admin` prefix across front and backend systems governed by a strict RBAC policy guard. Integrated API status monitoring, comprehensive read-only `AuditLogs`, and dynamic UI logic for `FeatureFlag` state flipping.
 
+### Phase 12: Brand Identity & UI Polish (2026-04-27)
+- **Brand Color Pivot**: Replaced generic indigo `#4F6EF7` with the app icon's native colors — orange `#E06028` as primary action color, blue `#4B8EC4` as secondary. All CSS custom properties updated in `globals.css`; Tailwind config extended with `brand.secondary`. Logo icon colors now drive the entire design system.
+- **Page Title Accent**: `.page-title` CSS class updated to render in `--brand-secondary` (blue `#4B8EC4`) instead of inherited white. Applied globally across all 21 dashboard pages with zero per-page changes.
+- **Logo & Wordmark Refinement**: App icon display size increased 32→40px with 10px border radius. Wordmark switched to Plus Jakarta Sans 800 weight with `-0.03em` tracking. Logo div made clickable (navigates home).
+- **Light/Dark Theme Toggle**: Installed `next-themes`. `ThemeProvider` wraps root layout with `defaultTheme="dark"`, `attribute="class"`. `.light` CSS override block added to `globals.css` (white `#FFFFFF` bg, `#1a1a2e` text, all surfaces mapped). `ThemeToggle` component (sun/moon SVG icons) added to sidebar footer above logout button. Theme preference persists via `localStorage`.
+- **Custom Nav Icons (21)**: All lucide-react nav icons replaced with bespoke inline SVG components in `components/nav-icons.tsx`. 1.5px stroke, `fill="none"`, 24×24 viewBox. Each icon is iconographically distinctive — not generic lucide defaults. AI Studio = neural constellation nodes, Analytics = dotted trend line, Subscription = gem/diamond, Support = headset, Approvals = shield+check, etc.
+- **Welcome Home Page**: `/dashboard` permanently redesigned. Time-aware greeting (Good morning/afternoon/evening + first name from JWT), 3 quick-action cards (Create Post, Connect Account, Browse Templates) with orange/blue accent borders and hover lift animation, 3-stat strip (Total/Scheduled/Published), recent posts feed with status dots and row hover. Empty state prompts "Create your first post."
+- **Docker Infra Fixes (pre-existing bugs surfaced by rebuild)**:
+  - `apps/api/Dockerfile` CMD corrected: TypeScript with no explicit `rootDir` outputs to `dist/src/main.js` not `dist/main.js`.
+  - Docker base image upgraded `node:18-alpine` → `node:20-alpine`: `@nestjs/schedule` uses `crypto.randomUUID()` which requires Node ≥19 as a global.
+  - `REDIS_URL=redis://redis:6379` added to docker-compose API environment; `depends_on: redis` added to ensure startup order.
+- **Nginx DNS Fix**: Added `resolver 127.0.0.11 valid=10s` + `set $upstream` variables to nginx config. Forces per-request DNS resolution so container IP changes after rebuilds don't cause 502s.
+- **Merged to main**: Branch `reliability/phase-11` merged and pushed. Production containers rebuilt and healthy.
+
 ### Phase 11: Publishing Reliability Infrastructure (2026-04-27)
 - **Root Cause Analysis Applied**: Implemented all 8 failure modes identified in `docs/research/RELIABILITY_RESEARCH.md`. Every architectural decision grounded in competitor failure analysis (Publer, Content360, SocialBee, Metricool).
 - **TokenHealthModule**: NestJS cron job runs every 4 hours. Proactively checks all SocialAccount tokens. Sets `tokenStatus` to `TOKEN_EXPIRING` (7 days), `TOKEN_CRITICAL` (3 days), or `TOKEN_EXPIRED`. Sends notifications at each transition. Blocks publish jobs (`BLOCKED` status) on expiry. Auto-unblocks all held jobs when user reconnects account.
