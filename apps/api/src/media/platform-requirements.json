@@ -1,0 +1,82 @@
+{
+  "INSTAGRAM": {
+    "image": {
+      "formats": ["jpeg", "jpg", "png"],
+      "maxSizeMB": 8,
+      "aspectRatios": ["1:1", "4:5", "1.91:1"],
+      "maxWidthPx": 1080
+    },
+    "reel": {
+      "formats": ["mp4"],
+      "videoCodecs": ["h264"],
+      "maxSizeMB": 4096,
+      "maxDurationSeconds": 900,
+      "minDurationSeconds": 3,
+      "aspectRatio": "9:16",
+      "minResolutionHeight": 720
+    },
+    "story": {
+      "formats": ["mp4"],
+      "videoCodecs": ["h264"],
+      "maxSizeMB": 4096,
+      "maxDurationSeconds": 60,
+      "aspectRatio": "9:16"
+    }
+  },
+  "TWITTER": {
+    "image": {
+      "formats": ["jpeg", "jpg", "png", "gif", "webp"],
+      "maxSizeMB": 5
+    },
+    "video": {
+      "formats": ["mp4"],
+      "maxSizeMB": 512,
+      "maxDurationSeconds": 140
+    }
+  },
+  "LINKEDIN": {
+    "image": {
+      "formats": ["jpeg", "jpg", "png"],
+      "maxSizeMB": 10
+    },
+    "video": {
+      "formats": ["mp4"],
+      "maxSizeMB": 5120,
+      "minDurationSeconds": 3,
+      "maxDurationSeconds": 600
+    }
+  },
+  "TIKTOK": {
+    "video": {
+      "formats": ["mp4", "webm"],
+      "maxSizeMB": 4096,
+      "minDurationSeconds": 3,
+      "maxDurationSeconds": 600,
+      "minResolutionHeight": 720
+    }
+  },
+  "YOUTUBE": {
+    "short": {
+      "formats": ["mp4", "mov", "avi", "webm"],
+      "maxSizeMB": 262144,
+      "maxDurationSeconds": 60,
+      "aspectRatio": "9:16"
+    },
+    "video": {
+      "formats": ["mp4", "mov", "avi", "webm"],
+      "maxSizeMB": 262144,
+      "maxDurationSeconds": 43200
+    }
+  },
+  "FACEBOOK": {
+    "image": {
+      "formats": ["jpeg", "jpg", "png", "bmp", "gif"],
+      "maxSizeMB": 30
+    },
+    "video": {
+      "formats": ["mp4"],
+      "maxSizeMB": 10240,
+      "maxDurationSeconds": 14400
+    }
+  }
+}

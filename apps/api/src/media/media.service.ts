@@ -1,15 +1,21 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { MediaValidationService } from './media-validation.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const COMMON_PLATFORMS = ['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'];
+
 @Injectable()
 export class MediaService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private validation: MediaValidationService,
+    ) { }
 
     async saveUpload(userId: string, file: Express.Multer.File, folder?: string) {
         const urlPath = `/uploads/${file.filename}`;
-        return this.prisma.mediaAsset.create({
+        const asset = await this.prisma.mediaAsset.create({
             data: {
                 userId,
                 filename: file.filename,
@@ -21,6 +27,20 @@ export class MediaService {
                 tags: [],
             },
         });
+
+        try {
+            const filePath = path.join(process.cwd(), 'uploads', file.filename);
+            const results = await this.validation.validate(filePath, file.size, COMMON_PLATFORMS);
+            const validationTag = `validation:${results.map(r => `${r.platform}=${r.status}`).join(',')}`;
+            await this.prisma.mediaAsset.update({
+                where: { id: asset.id },
+                data: { tags: { push: validationTag } },
+            });
+        } catch {
+            // Validation error does not block the upload
+        }
+
+        return asset;
     }
 
     findAll(userId: string) {
