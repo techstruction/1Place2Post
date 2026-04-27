@@ -3,10 +3,12 @@
 
 :root {
   /* ── Brand ── */
-  --brand-500: #4F6EF7;
-  --brand-400: #7089F9;
-  --brand-600: #3A56E8;
-  --brand-muted: rgba(79, 110, 247, 0.15);
+  --brand-500: #E06028;
+  --brand-400: #F07038;
+  --brand-600: #C85020;
+  --brand-muted: rgba(224, 96, 40, 0.15);
+  --brand-secondary: #4B8EC4;
+  --brand-secondary-muted: rgba(75, 142, 196, 0.15);
 
   /* ── Backgrounds ── */
   --bg-base: #0a0a0f;
@@ -95,6 +97,23 @@ a {
 
 a:hover {
   color: var(--accent-hover);
+}
+
+/* ── Light theme overrides ── */
+.light {
+  --bg-base: #ffffff;
+  --bg-card: #f5f5f7;
+  --bg-input: #eeeef0;
+  --bg-sidebar: #f0f0f2;
+  --bg-hover: #e8e8ec;
+  --text-primary: #1a1a2e;
+  --text-secondary: #5a5a7a;
+  --text-muted: #9090aa;
+  --text-dim: #b0b0c0;
+  --border-default: #dddde8;
+  --border-subtle: #e8e8f0;
+  --brand-muted: rgba(224, 96, 40, 0.10);
+  --brand-secondary-muted: rgba(75, 142, 196, 0.10);
 }
 
 /* ── Layout ── */
@@ -464,6 +483,7 @@ tr:hover td {
 .page-title {
   font-size: 1.4rem;
   font-weight: 700;
+  color: var(--brand-secondary);
 }
 
 /* ── Error / alert ── */

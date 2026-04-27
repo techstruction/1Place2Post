@@ -3,45 +3,50 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { clearToken } from '../../lib/api';
 import { useEffect, useState } from 'react';
+import { LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  LayoutDashboard, FileText, Calendar, Image, LayoutTemplate,
-  Sparkles, BarChart2, Send, Rss, MessageSquare, Users, Bell,
-  CheckSquare, Link as LinkIcon, Globe, Bot, UserCog, CreditCard,
-  LifeBuoy, BookOpen, ShieldCheck, LogOut, ChevronLeft, ChevronRight, Zap,
-} from 'lucide-react';
+  OverviewIcon, PostsIcon, CalendarIcon, MediaIcon, TemplatesIcon,
+  AIStudioIcon, AnalyticsIcon, PublishQueueIcon, InboxIcon, LeadsIcon,
+  NotificationsIcon, ApprovalsIcon, RSSIcon, WebhooksIcon, ConnectionsIcon,
+  LinkPagesIcon, BotRulesIcon, TeamIcon, SubscriptionIcon, SupportIcon,
+  DocsIcon, AdminIcon,
+} from '../../components/nav-icons';
 import { AccountHealthDot, getAccountHealth } from '../../components/AccountHealthDot';
 import { PublishFailureBanner } from '../../components/PublishFailureBanner';
+import { ThemeToggle } from '../../components/theme-toggle';
 
 type SocialAccount = {
   id: string;
   platform: string;
-  handle: string | null;
+  username: string | null;
+  handle?: string | null;
   isActive: boolean;
-  tokenExpiresAt: string | null;
+  tokenStatus: string | null;
+  tokenExpiresAt?: string | null;
 };
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/posts', label: 'Posts', icon: FileText },
-  { href: '/dashboard/calendar', label: 'Calendar', icon: Calendar },
-  { href: '/dashboard/media', label: 'Media', icon: Image },
-  { href: '/dashboard/templates', label: 'Templates', icon: LayoutTemplate },
-  { href: '/dashboard/ai-studio', label: 'AI Studio', icon: Sparkles },
-  { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart2 },
-  { href: '/dashboard/jobs', label: 'Publish Queue', icon: Send },
-  { href: '/dashboard/inbox', label: 'Unified Inbox', icon: MessageSquare },
-  { href: '/dashboard/leads', label: 'Leads Pipeline', icon: Users },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
-  { href: '/dashboard/approvals', label: 'Approvals', icon: CheckSquare },
-  { href: '/dashboard/rss-campaigns', label: 'RSS Campaigns', icon: Rss },
-  { href: '/dashboard/outgoing-webhooks', label: 'Webhooks', icon: Zap },
-  { href: '/dashboard/connections', label: 'Connections', icon: LinkIcon },
-  { href: '/dashboard/link-pages', label: 'Link Pages', icon: Globe },
-  { href: '/dashboard/bot-rules', label: 'Bot Rules', icon: Bot },
-  { href: '/dashboard/team', label: 'Team', icon: UserCog },
-  { href: '/dashboard/subscription', label: 'Subscription', icon: CreditCard },
-  { href: '/dashboard/support', label: 'Support', icon: LifeBuoy },
-  { href: '/docs/user', label: 'Documentation', icon: BookOpen },
+  { href: '/dashboard',                   label: 'Overview',       icon: OverviewIcon,      exact: true },
+  { href: '/dashboard/posts',             label: 'Posts',          icon: PostsIcon },
+  { href: '/dashboard/calendar',          label: 'Calendar',       icon: CalendarIcon },
+  { href: '/dashboard/media',             label: 'Media',          icon: MediaIcon },
+  { href: '/dashboard/templates',         label: 'Templates',      icon: TemplatesIcon },
+  { href: '/dashboard/ai-studio',         label: 'AI Studio',      icon: AIStudioIcon },
+  { href: '/dashboard/analytics',         label: 'Analytics',      icon: AnalyticsIcon },
+  { href: '/dashboard/jobs',              label: 'Publish Queue',  icon: PublishQueueIcon },
+  { href: '/dashboard/inbox',             label: 'Unified Inbox',  icon: InboxIcon },
+  { href: '/dashboard/leads',             label: 'Leads Pipeline', icon: LeadsIcon },
+  { href: '/dashboard/notifications',     label: 'Notifications',  icon: NotificationsIcon },
+  { href: '/dashboard/approvals',         label: 'Approvals',      icon: ApprovalsIcon },
+  { href: '/dashboard/rss-campaigns',     label: 'RSS Campaigns',  icon: RSSIcon },
+  { href: '/dashboard/outgoing-webhooks', label: 'Webhooks',       icon: WebhooksIcon },
+  { href: '/dashboard/connections',       label: 'Connections',    icon: ConnectionsIcon },
+  { href: '/dashboard/link-pages',        label: 'Link Pages',     icon: LinkPagesIcon },
+  { href: '/dashboard/bot-rules',         label: 'Bot Rules',      icon: BotRulesIcon },
+  { href: '/dashboard/team',              label: 'Team',           icon: TeamIcon },
+  { href: '/dashboard/subscription',      label: 'Subscription',   icon: SubscriptionIcon },
+  { href: '/dashboard/support',           label: 'Support',        icon: SupportIcon },
+  { href: '/docs/user',                   label: 'Documentation',  icon: DocsIcon },
 ];
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -96,30 +101,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const allNavItems = [
     ...NAV_ITEMS,
-    ...(isAdmin ? [{ href: '/admin', label: 'Admin Console', icon: ShieldCheck, exact: false }] : []),
+    ...(isAdmin ? [{ href: '/admin', label: 'Admin Console', icon: AdminIcon, exact: false }] : []),
   ];
 
   return (
     <div className="layout">
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
         {/* Logo */}
-        <div className="sidebar-logo">
-          <span className="logo-icon" style={{ cursor: 'pointer', marginRight: isCollapsed ? 0 : 10 }}>1</span>
+        <div className="sidebar-logo" style={{ cursor: 'pointer' }} onClick={() => router.push('/dashboard')}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="1Place2Post"
+            style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, objectFit: 'cover' }}
+          />
           {!isCollapsed && (
             <>
-              <span className="logo-text">Place</span>
-              <span className="nav-item-label">2Post</span>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.03em', whiteSpace: 'nowrap', marginLeft: 10, lineHeight: 1 }}>
+                <span style={{ color: '#E06028' }}>1</span>
+                <span style={{ color: '#4B8EC4' }}>Place</span>
+                <span style={{ color: '#E06028' }}>2</span>
+                <span style={{ color: '#4B8EC4' }}>Post</span>
+              </span>
+              <button
+                className="sidebar-toggle-btn"
+                onClick={e => { e.stopPropagation(); setIsCollapsed(true); }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginLeft: 'auto' }}
+                title="Collapse"
+              >
+                <ChevronLeft size={18} />
+              </button>
             </>
-          )}
-          {!isCollapsed && (
-            <button
-              className="sidebar-toggle-btn"
-              onClick={() => setIsCollapsed(true)}
-              style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginLeft: 'auto' }}
-              title="Collapse"
-            >
-              <ChevronLeft size={18} />
-            </button>
           )}
         </div>
 
@@ -143,7 +155,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className={`nav-item${isActive(href, exact) ? ' active' : ''}`}
               title={isCollapsed ? label : undefined}
             >
-              <Icon size={17} style={{ flexShrink: 0 }} />
+              <Icon />
               <span className="nav-item-label">{label}</span>
             </Link>
           ))}
@@ -188,8 +200,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <AccountHealthDot status={status} />
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {PLATFORM_LABELS[account.platform] ?? account.platform}
-                    {account.handle && (
-                      <span style={{ color: 'var(--text-dim)' }}> @{account.handle}</span>
+                    {(account.username ?? account.handle) && (
+                      <span style={{ color: 'var(--text-dim)' }}> @{account.username ?? account.handle}</span>
                     )}
                   </span>
                 </Link>
@@ -198,17 +210,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         )}
 
-        {/* Logout */}
-        <button
-          id="logout-btn"
-          onClick={logout}
-          className="nav-item btn-ghost"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', marginTop: 8 }}
-          title="Log out"
-        >
-          <LogOut size={17} style={{ flexShrink: 0 }} />
-          <span className="nav-item-label">Log out</span>
-        </button>
+        {/* Theme toggle + Logout */}
+        <div style={{ marginTop: 8 }}>
+          <ThemeToggle collapsed={isCollapsed} />
+          <button
+            id="logout-btn"
+            onClick={logout}
+            className="nav-item btn-ghost"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
+            title="Log out"
+          >
+            <LogOut size={17} style={{ flexShrink: 0 }} />
+            <span className="nav-item-label">Log out</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main content area */}

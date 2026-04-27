@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { NotificationType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-
-type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR' | 'PUBLISH_SUCCESS' | 'PUBLISH_FAILED' | 'APPROVAL' | 'SUPPORT';
 
 @Injectable()
 export class NotificationService {

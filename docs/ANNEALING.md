@@ -192,6 +192,52 @@ The inbox and composer pages were rebuilt from scratch and don't have this issue
 
 ---
 
+---
+
+## Phase 11 — Publishing Reliability Infrastructure (2026-04-27)
+
+---
+
+### MISTAKE 12: `@nestjs/schedule` was not in package.json but assumed to be
+
+**What happened:** `TokenHealthModule` was implemented using `@Cron` from `@nestjs/schedule`. The package was not installed — the implementer had to install it mid-task. This added an unexpected step and could have caused confusing TypeScript errors if not caught early.
+
+**Why it's subtle:** The `@Cron` decorator is part of a separate NestJS package, not the core. Many NestJS apps don't use scheduled tasks, so it's often missing. TypeScript won't warn you until you try to import it.
+
+**Rule:** Before using `@Cron`, `@Interval`, or `@Timeout` decorators, always verify `@nestjs/schedule` is in `package.json`. If not: `npm install @nestjs/schedule`. Also ensure `ScheduleModule.forRoot()` is registered only once in the app.
+
+---
+
+### MISTAKE 13: `fluent-ffmpeg` types `data.format.duration` as `number | string | undefined`
+
+**What happened:** `FfprobeService.probe()` called `parseFloat(data.format.duration)`. TypeScript rejected this because `duration` is typed as `number | string | undefined` — not just `string`. The fix was `parseFloat(String(data.format.duration ?? '0'))`.
+
+**Why it's subtle:** The intuition is that `parseFloat` accepts a `string` and `duration` is a duration value — surely it's a number. But the ffprobe output can return duration as a string (e.g. `"30.5"`) or a number, and the type union reflects that.
+
+**Rule:** When calling `parseFloat()` on ffprobe metadata fields, always wrap with `String()`: `parseFloat(String(data.format.duration ?? '0'))`. Apply the same pattern to `bit_rate`, `size`, and other numeric string fields.
+
+---
+
+### MISTAKE 14: `.env.example` silently caught by `.gitignore .env.*` pattern
+
+**What happened:** Created `apps/api/.env.example` with the Redis URL template. `git add` silently skipped it because the project `.gitignore` has `.env.*` which matches `.env.example`. The file existed on disk but wasn't staged.
+
+**Why it's subtle:** `.env.example` is intentionally a template with no secrets, so most projects exclude it from `.gitignore`. This project's `.gitignore` is overly broad.
+
+**Fix:** `git add -f apps/api/.env.example` — the `-f` force-flag bypasses `.gitignore` for this file.
+
+**Rule:** When adding `.env.example` files, always use `git add -f`. Consider adding `!.env.example` as an exception to `.gitignore` to make future additions automatic.
+
+---
+
+### MISTAKE 15: Pre-existing test failures can be confused with regressions
+
+**What happened:** `instagram.service.spec.ts` and `instagram.controller.spec.ts` were failing with `Nest can't resolve dependencies` before Phase 11 began. During Phase 11, running the full test suite showed 2 failures and triggered investigation. Confirmed pre-existing by checking out `main` and seeing the same failures.
+
+**Rule:** At the start of any branch, run the full test suite and record the baseline failure count and test names. Document pre-existing failures in a comment in the task plan: "Note: 2 Instagram scaffold tests fail on main — do not count as regressions." This eliminates repeated investigation.
+
+---
+
 ## General Rules Extracted from Phase 10
 
 These are distilled from the above mistakes into standing rules for all future frontend work:

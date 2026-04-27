@@ -11,10 +11,12 @@ export default {
     extend: {
       colors: {
         brand: {
-          400: '#7089F9',
-          500: '#4F6EF7',
-          600: '#3A56E8',
-          muted: 'rgba(79, 110, 247, 0.15)',
+          400: '#F07038',
+          500: '#E06028',
+          600: '#C85020',
+          muted: 'rgba(224, 96, 40, 0.15)',
+          secondary: '#4B8EC4',
+          'secondary-muted': 'rgba(75, 142, 196, 0.15)',
         },
         sidebar: '#181B20',
         surface: {
