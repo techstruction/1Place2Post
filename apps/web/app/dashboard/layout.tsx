@@ -15,9 +15,11 @@ import { PublishFailureBanner } from '../../components/PublishFailureBanner';
 type SocialAccount = {
   id: string;
   platform: string;
-  handle: string | null;
+  username: string | null;
+  handle?: string | null;
   isActive: boolean;
-  tokenExpiresAt: string | null;
+  tokenStatus: string | null;
+  tokenExpiresAt?: string | null;
 };
 
 const NAV_ITEMS = [
@@ -188,8 +190,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <AccountHealthDot status={status} />
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {PLATFORM_LABELS[account.platform] ?? account.platform}
-                    {account.handle && (
-                      <span style={{ color: 'var(--text-dim)' }}> @{account.handle}</span>
+                    {(account.username ?? account.handle) && (
+                      <span style={{ color: 'var(--text-dim)' }}> @{account.username ?? account.handle}</span>
                     )}
                   </span>
                 </Link>
