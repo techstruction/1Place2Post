@@ -97,9 +97,13 @@ export class TokenHealthService {
           { socialAccountId: account.id, platform: account.platform },
         );
 
-        const blocked = await this.blockJobsForExpiredAccount(account.id);
-        if (blocked > 0) {
-          this.log.warn(`Blocked ${blocked} job(s) for expired account ${account.id} (${account.platform})`);
+        try {
+          const blocked = await this.blockJobsForExpiredAccount(account.id);
+          if (blocked > 0) {
+            this.log.warn(`Blocked ${blocked} job(s) for expired account ${account.id} (${account.platform})`);
+          }
+        } catch (err: any) {
+          this.log.error(`Failed to block jobs for expired account ${account.id}: ${err.message}`);
         }
       }
     }
