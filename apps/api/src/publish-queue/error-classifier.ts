@@ -7,8 +7,8 @@ export interface ClassifiableError {
 }
 
 const NETWORK_ERROR_CODES = new Set(['ECONNRESET', 'ETIMEDOUT', 'ENOTFOUND', 'ECONNREFUSED']);
-const PERMANENT_HTTP_STATUSES = new Set([400, 403, 422]);
-const TRANSIENT_HTTP_STATUSES = new Set([500, 502, 503, 504]);
+const PERMANENT_HTTP_STATUSES = new Set([400, 403, 404, 410, 422]);
+const TRANSIENT_HTTP_STATUSES = new Set([408, 500, 502, 503, 504]);
 
 export function classifyError(err: ClassifiableError): ErrorClass {
   if (err.status === 401) return 'TOKEN_EXPIRED';

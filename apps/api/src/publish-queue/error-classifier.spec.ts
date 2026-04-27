@@ -17,6 +17,10 @@ describe('classifyError', () => {
     expect(classifyError({ status: 422 })).toBe('PERMANENT');
   });
 
+  it('classifies 404 as PERMANENT', () => {
+    expect(classifyError({ status: 404 })).toBe('PERMANENT');
+  });
+
   it('classifies 429 as RATE_LIMIT', () => {
     expect(classifyError({ status: 429 })).toBe('RATE_LIMIT');
   });
@@ -27,6 +31,10 @@ describe('classifyError', () => {
 
   it('classifies 503 as TRANSIENT', () => {
     expect(classifyError({ status: 503 })).toBe('TRANSIENT');
+  });
+
+  it('classifies 408 as TRANSIENT', () => {
+    expect(classifyError({ status: 408 })).toBe('TRANSIENT');
   });
 
   it('classifies network errors as TRANSIENT', () => {
