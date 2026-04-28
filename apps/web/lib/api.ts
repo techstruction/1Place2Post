@@ -153,3 +153,11 @@ export function setActiveWorkspaceId(id: string) {
   if (typeof window !== 'undefined') localStorage.setItem('1p2p_activeWorkspace', id);
 }
 
+// User profile
+export const userApi = {
+  me: (): Promise<{ id: string; email: string; name: string | null; userRole: string | null; onboardingCompletedAt: string | null }> =>
+    apiFetch('/user/me'),
+  updateProfile: (data: { name?: string; userRole?: string; onboardingCompletedAt?: Date | null }) =>
+    apiFetch('/user/me', { method: 'PATCH', body: JSON.stringify(data) }),
+};
+

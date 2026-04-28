@@ -27,7 +27,7 @@ export class AuthService {
             data: { email: dto.email, passwordHash, name: dto.name },
         });
 
-        return this.signToken(user.id, user.email, user.role);
+        return this.signToken(user.id, user.email, user.role, user.onboardingCompletedAt);
     }
 
     async login(dto: LoginDto) {
@@ -40,7 +40,7 @@ export class AuthService {
         const valid = await bcrypt.compare(dto.password, user.passwordHash);
         if (!valid) throw new UnauthorizedException('Invalid credentials');
 
-        return this.signToken(user.id, user.email, user.role);
+        return this.signToken(user.id, user.email, user.role, user.onboardingCompletedAt);
     }
 
     async validateOAuthUser(email: string, name?: string, avatarUrl?: string) {
@@ -50,16 +50,16 @@ export class AuthService {
                 data: { email, name, avatarUrl, passwordHash: null },
             });
         } else if (!user.avatarUrl && avatarUrl) {
-            // Optimistically update avatar if provided
             user = await this.prisma.user.update({ where: { id: user.id }, data: { avatarUrl } });
         }
-        return this.signToken(user.id, user.email, user.role);
+        return this.signToken(user.id, user.email, user.role, user.onboardingCompletedAt);
     }
 
-    private signToken(userId: string, email: string, role?: string) {
+    private signToken(userId: string, email: string, role?: string, onboardingCompletedAt?: Date | null) {
         const payload = { sub: userId, email, role: role || 'USER' };
         return {
             access_token: this.jwt.sign(payload),
+            needsOnboarding: !onboardingCompletedAt,
             user: { id: userId, email, role: role || 'USER' },
         };
     }
