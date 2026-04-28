@@ -19,6 +19,7 @@ type SocialAccount = {
 export default function ConnectionsPage() {
     const router = useRouter();
     const [accounts, setAccounts] = useState<SocialAccount[]>([]);
+    const [activeWorkspaceId, setWorkspaceIdState] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [showAdd, setShowAdd] = useState(false);
     const [form, setForm] = useState({ platform: 'INSTAGRAM', platformId: '', username: '', accessToken: '', tokenExpiry: '' });
@@ -27,7 +28,14 @@ export default function ConnectionsPage() {
     const [showHelp, setShowHelp] = useState(false);
 
     useEffect(() => {
-        socialApi.list()
+        const wsId = localStorage.getItem('1p2p_activeWorkspace');
+        setWorkspaceIdState(wsId);
+        if (!wsId) { setLoading(false); return; }
+        const token = localStorage.getItem('1p2p_token');
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:35763/api'}/social-accounts/workspace/${wsId}`, {
+            headers: { Authorization: `Bearer ${token || ''}` },
+        })
+            .then(r => r.ok ? r.json() : [])
             .then(setAccounts)
             .catch(() => router.push('/login'))
             .finally(() => setLoading(false));
@@ -44,6 +52,7 @@ export default function ConnectionsPage() {
                 username: form.username || undefined,
                 accessToken: form.accessToken,
                 tokenExpiry: form.tokenExpiry || undefined,
+                workspaceId: activeWorkspaceId!,
             });
             setAccounts(a => [{ ...created, tokenExpiring: false, tokenExpired: false }, ...a]);
             setShowAdd(false);
@@ -106,7 +115,8 @@ export default function ConnectionsPage() {
                         <button
                             onClick={() => {
                                 const token = localStorage.getItem('1p2p_token');
-                                window.location.href = `http://localhost:35763/api/social/instagram/auth?token=${token}`;
+                                const wsId = localStorage.getItem('1p2p_activeWorkspace');
+                                window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:35763/api'}/social/instagram/auth?token=${token}&workspaceId=${wsId}`;
                             }}
                             className="btn btn-primary"
                             style={{ width: '100%', background: '#4267B2' }}

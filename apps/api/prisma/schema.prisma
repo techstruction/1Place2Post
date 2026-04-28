@@ -20,21 +20,24 @@ model User {
   passwordHash String?
   name         String?
   avatarUrl    String?
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role                  Role      @default(USER)
+  onboardingCompletedAt DateTime?
+  userRole              UserRole?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  socialAccounts   SocialAccount[]
-  posts            Post[]
-  series           Series[]
-  linkPages        LinkPage[]
-  botRules         BotRule[]
-  mediaAssets      MediaAsset[]
-  templates        Template[]
-  postingSchedules PostingSchedule[]
-  engagementEvents EngagementEvent[]
-  teamMemberships  TeamMember[]
-  rssCampaigns     RssCampaign[]
+  socialAccounts       SocialAccount[]
+  posts                Post[]
+  series               Series[]
+  linkPages            LinkPage[]
+  botRules             BotRule[]
+  mediaAssets          MediaAsset[]
+  templates            Template[]
+  postingSchedules     PostingSchedule[]
+  engagementEvents     EngagementEvent[]
+  ownedWorkspaces      Workspace[]       @relation("WorkspaceOwner")
+  workspaceMemberships WorkspaceMember[]
+  rssCampaigns         RssCampaign[]
   outgoingWebhooks OutgoingWebhook[]
   approvals        PostApproval[]
   notifications    Notification[]
@@ -49,6 +52,14 @@ enum Role {
   ADMIN
 }
 
+enum UserRole {
+  CREATOR
+  AGENCY
+  BUSINESS_OWNER
+  SOCIAL_MEDIA_MANAGER
+  OTHER
+}
+
 // ─────────────────────────────────────────────
 // Social Accounts (OAuth connections)
 // ─────────────────────────────────────────────
@@ -56,6 +67,7 @@ enum Role {
 model SocialAccount {
   id           String      @id @default(cuid())
   userId       String
+  workspaceId  String
   platform     Platform
   platformId   String // platform's user/page ID
   username     String?
@@ -71,13 +83,14 @@ model SocialAccount {
   updatedAt    DateTime    @updatedAt
 
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   postPlatforms PostPlatform[]
   inboxMessages InboxMessage[]
   botLogs       BotActionLog[]
   leads         Lead[]
   botRules      BotRule[]
 
-  @@unique([userId, platform, platformId])
+  @@unique([workspaceId, platform, platformId])
 }
 
 enum Platform {
@@ -86,6 +99,8 @@ enum Platform {
   FACEBOOK
   YOUTUBE
   TWITTER
+  THREADS
+  TELEGRAM
 }
 
 enum TokenStatus {
@@ -112,6 +127,7 @@ enum ErrorClass {
 model Post {
   id                  String     @id @default(cuid())
   userId              String
+  workspaceId         String?
   title               String?
   caption             String
   hashtags            String[]
@@ -125,6 +141,7 @@ model Post {
   updatedAt           DateTime   @updatedAt
 
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace?      @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
   platforms   PostPlatform[]
   mediaAssets PostMedia[]
   approval    PostApproval?
@@ -358,36 +375,42 @@ enum EngagementMetric {
 }
 
 // ─────────────────────────────────────────────
-// Phase 3: Teams
+// Phase 3: Workspaces (replaces Team)
 // ─────────────────────────────────────────────
 
-model Team {
+model Workspace {
   id        String   @id @default(cuid())
   name      String
+  slug      String   @unique
+  industry  String?
   ownerId   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members   TeamMember[]
-  auditLogs AuditLog[]
+  owner          User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members        WorkspaceMember[]
+  socialAccounts SocialAccount[]
+  posts          Post[]
+  auditLogs      AuditLog[]
 }
 
-model TeamMember {
-  id        String   @id @default(cuid())
-  teamId    String
-  userId    String
-  role      TeamRole @default(MEMBER)
-  createdAt DateTime @default(now())
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole @default(MEMBER)
+  createdAt   DateTime      @default(now())
 
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([teamId, userId])
+  @@unique([workspaceId, userId])
 }
 
-enum TeamRole {
+enum WorkspaceRole {
   OWNER
   ADMIN
+  SUPERVISOR
   MEMBER
 }
 
@@ -396,16 +419,16 @@ enum TeamRole {
 // ─────────────────────────────────────────────
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  teamId     String?
-  entityType String // e.g. "Post", "Template"
-  entityId   String?
-  action     String // e.g. "created", "deleted"
-  metaJson   String   @default("{}")
-  createdAt  DateTime @default(now())
+  id          String   @id @default(cuid())
+  userId      String?
+  workspaceId String?
+  entityType  String
+  entityId    String?
+  action      String
+  metaJson    String   @default("{}")
+  createdAt   DateTime @default(now())
 
-  team Team? @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
 }
 
 // ─────────────────────────────────────────────

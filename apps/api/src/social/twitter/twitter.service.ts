@@ -10,7 +10,7 @@ export class TwitterService {
 
     // In-memory store for PKCE code verifiers.
     // NOTE: For multi-node deployments, replace this with Redis or a database table.
-    private tempAuthStore = new Map<string, { codeVerifier: string; userId: string }>();
+    private tempAuthStore = new Map<string, { codeVerifier: string; userId: string; workspaceId: string }>();
 
     constructor(private configService: ConfigService) { }
 
@@ -26,7 +26,7 @@ export class TwitterService {
         return new TwitterApi({ clientId, clientSecret });
     }
 
-    getAuthUrl(userId: string): string {
+    getAuthUrl(userId: string, workspaceId: string): string {
         const client = this.getClient();
         const redirectUri = this.configService.get<string>('TWITTER_REDIRECT_URI');
 
@@ -40,8 +40,8 @@ export class TwitterService {
             { scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access'] }
         );
 
-        // Store the verifier and userId against the state parameter
-        this.tempAuthStore.set(state, { codeVerifier, userId });
+        // Store the verifier, userId, and workspaceId against the state parameter
+        this.tempAuthStore.set(state, { codeVerifier, userId, workspaceId });
 
         // Expire the state after 10 minutes to prevent memory leaks
         setTimeout(() => {
@@ -58,7 +58,7 @@ export class TwitterService {
             throw new BadRequestException('Invalid or expired state parameter');
         }
 
-        const { codeVerifier, userId } = authData;
+        const { codeVerifier, userId, workspaceId } = authData;
         this.tempAuthStore.delete(state);
 
         try {
@@ -83,8 +83,8 @@ export class TwitterService {
             // Upsert / Save the Token to the Database
             await this.prisma.socialAccount.upsert({
                 where: {
-                    userId_platform_platformId: {
-                        userId,
+                    workspaceId_platform_platformId: {
+                        workspaceId,
                         platform: Platform.TWITTER,
                         platformId: twitterUserId,
                     },
@@ -100,6 +100,7 @@ export class TwitterService {
                 },
                 create: {
                     userId,
+                    workspaceId,
                     platform: Platform.TWITTER,
                     platformId: twitterUserId,
                     username: twitterUsername,
