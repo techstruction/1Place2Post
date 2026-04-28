@@ -21,3 +21,4 @@ __pycache__/
 
 # Next.js build output
 .next/
+.worktrees/
