@@ -9,7 +9,7 @@ export class LinkedinService {
 
     constructor(private configService: ConfigService) { }
 
-    getAuthUrl(userId: string): string {
+    getAuthUrl(userId: string, workspaceId: string): string {
         // Needs LINKEDIN_CLIENT_ID
         const clientId = this.configService.get<string>('LINKEDIN_CLIENT_ID');
         const redirectUri = this.configService.get<string>('LINKEDIN_REDIRECT_URI');
@@ -18,7 +18,7 @@ export class LinkedinService {
             throw new BadRequestException('LinkedIn OAuth credentials are not configured');
         }
 
-        const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
+        const state = Buffer.from(JSON.stringify({ userId, workspaceId })).toString('base64');
         const scopes = 'r_organization_social w_organization_social r_liteprofile w_member_social';
         const encodedScopes = encodeURIComponent(scopes);
 
@@ -27,7 +27,7 @@ export class LinkedinService {
 
     async handleCallback(code: string, state: string) {
         try {
-            const { userId } = JSON.parse(Buffer.from(state, 'base64').toString('ascii'));
+            const { userId, workspaceId } = JSON.parse(Buffer.from(state, 'base64').toString('ascii'));
 
             // Needs LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET
             const clientId = this.configService.get<string>('LINKEDIN_CLIENT_ID');
@@ -83,8 +83,8 @@ export class LinkedinService {
 
             await this.prisma.socialAccount.upsert({
                 where: {
-                    userId_platform_platformId: {
-                        userId,
+                    workspaceId_platform_platformId: {
+                        workspaceId,
                         platform: platformLinkedIn,
                         platformId: urn,
                     },
@@ -99,6 +99,7 @@ export class LinkedinService {
                 },
                 create: {
                     userId,
+                    workspaceId,
                     platform: platformLinkedIn,
                     platformId: urn,
                     accessToken,

@@ -9,14 +9,14 @@ export class InstagramController {
 
     @UseGuards(JwtAuthGuard)
     @Get('auth')
-    async connect(@Req() req: any, @Res() res: ExpressResponse) {
+    async connect(@Req() req: any, @Query('workspaceId') workspaceId: string, @Res() res: ExpressResponse) {
         // JWT guard ensures req.user exists
         const userId = req.user?.id;
-        if (!userId) {
+        if (!userId || !workspaceId) {
             throw new UnauthorizedException('User not found in request');
         }
 
-        const authUrl = this.instagramService.getAuthUrl(userId);
+        const authUrl = this.instagramService.getAuthUrl(userId, workspaceId);
         return res.redirect(authUrl);
     }
 

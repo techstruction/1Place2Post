@@ -9,7 +9,7 @@ export class InstagramService {
 
     constructor(private configService: ConfigService) { }
 
-    getAuthUrl(userId: string): string {
+    getAuthUrl(userId: string, workspaceId: string): string {
         const clientId = this.configService.get<string>('INSTAGRAM_CLIENT_ID');
         const redirectUri = this.configService.get<string>('INSTAGRAM_REDIRECT_URI');
 
@@ -17,8 +17,8 @@ export class InstagramService {
             throw new BadRequestException('Instagram OAuth credentials are not configured');
         }
 
-        // Pass the userId in the state parameter to know who to attribute the token to upon callback
-        const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
+        // Pass the userId and workspaceId in the state parameter to know who to attribute the token to upon callback
+        const state = Buffer.from(JSON.stringify({ userId, workspaceId })).toString('base64');
 
         // Instagram/Facebook OAuth URL (Meta Graph API)
         // We request scopes needed for Instagram Graph API (posting content)
@@ -35,7 +35,7 @@ export class InstagramService {
     async handleCallback(code: string, state: string) {
         try {
             // Decode state to get the userId
-            const { userId } = JSON.parse(Buffer.from(state, 'base64').toString('ascii'));
+            const { userId, workspaceId } = JSON.parse(Buffer.from(state, 'base64').toString('ascii'));
 
             const clientId = this.configService.get<string>('INSTAGRAM_CLIENT_ID');
             const clientSecret = this.configService.get<string>('INSTAGRAM_CLIENT_SECRET');
@@ -74,8 +74,8 @@ export class InstagramService {
             // and store that array inside the metaJson field.
             await this.prisma.socialAccount.upsert({
                 where: {
-                    userId_platform_platformId: {
-                        userId,
+                    workspaceId_platform_platformId: {
+                        workspaceId,
                         platform: Platform.INSTAGRAM,
                         platformId: fbUserId,
                     },
@@ -89,6 +89,7 @@ export class InstagramService {
                 },
                 create: {
                     userId,
+                    workspaceId,
                     platform: Platform.INSTAGRAM,
                     platformId: fbUserId,
                     accessToken,
