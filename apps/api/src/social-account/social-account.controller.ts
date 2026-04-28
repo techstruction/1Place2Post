@@ -10,12 +10,17 @@ export class SocialAccountController {
 
     @Get()
     findAll(@Request() req) {
-        return this.service.findAll(req.user.id);
+        return this.service.findAllForUser(req.user.id);
+    }
+
+    @Get('workspace/:workspaceId')
+    findForWorkspace(@Param('workspaceId') workspaceId: string) {
+        return this.service.findAllForWorkspace(workspaceId);
     }
 
     @Post()
     create(@Request() req, @Body() dto: CreateSocialAccountDto) {
-        return this.service.create(req.user.id, dto);
+        return this.service.create(req.user.id, dto.workspaceId, dto);
     }
 
     @Delete(':id')

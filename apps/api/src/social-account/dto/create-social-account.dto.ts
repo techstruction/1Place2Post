@@ -2,6 +2,9 @@ import { IsString, IsOptional, IsEnum, IsArray } from 'class-validator';
 import { Platform } from '@prisma/client';
 
 export class CreateSocialAccountDto {
+    @IsString()
+    workspaceId: string;
+
     @IsEnum(Platform)
     platform: Platform;
 
