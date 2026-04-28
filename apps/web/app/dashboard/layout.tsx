@@ -43,7 +43,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/connections',       label: 'Connections',    icon: ConnectionsIcon },
   { href: '/dashboard/link-pages',        label: 'Link Pages',     icon: LinkPagesIcon },
   { href: '/dashboard/bot-rules',         label: 'Bot Rules',      icon: BotRulesIcon },
-  { href: '/dashboard/team',              label: 'Team',           icon: TeamIcon },
+  { href: '/dashboard/workspace',          label: 'Workspace',      icon: TeamIcon },
   { href: '/dashboard/subscription',      label: 'Subscription',   icon: SubscriptionIcon },
   { href: '/dashboard/support',           label: 'Support',        icon: SupportIcon },
   { href: '/docs/user',                   label: 'Documentation',  icon: DocsIcon },
@@ -64,6 +64,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
+  const [workspaces, setWorkspaces] = useState<{ id: string; name: string; myRole: string }[]>([]);
+  const [activeWsName, setActiveWsName] = useState<string>('');
+  const [showWsSwitcher, setShowWsSwitcher] = useState(false);
 
   useEffect(() => {
     try {
@@ -87,6 +90,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .then(setAccounts)
       .catch(() => {});
     return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('1p2p_token');
+    if (!token) return;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:35763/api'}/workspaces/mine`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.ok ? r.json() : [])
+      .then((list: { id: string; name: string; myRole: string }[]) => {
+        setWorkspaces(list);
+        const activeId = localStorage.getItem('1p2p_activeWorkspace') ?? list[0]?.id;
+        const active = list.find(w => w.id === activeId) ?? list[0];
+        if (active) {
+          setActiveWsName(active.name);
+          localStorage.setItem('1p2p_activeWorkspace', active.id);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   function logout() {
@@ -134,6 +156,60 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </>
           )}
         </div>
+
+        {/* Workspace switcher */}
+        {workspaces.length > 0 && !isCollapsed && (
+          <div style={{ padding: '0.25rem 0', borderBottom: '1px solid var(--border-default)', marginBottom: '0.5rem' }}>
+            <button
+              onClick={() => setShowWsSwitcher(s => !s)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                background: 'rgba(255,255,255,0.04)', border: 'none', borderRadius: 8,
+                padding: '6px 10px', cursor: 'pointer', color: 'var(--text-primary)',
+                fontSize: '0.85rem', fontWeight: 600,
+              }}
+            >
+              <span style={{
+                width: 24, height: 24, borderRadius: 6, background: 'var(--brand-500)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0,
+              }}>
+                {activeWsName.charAt(0).toUpperCase() || '?'}
+              </span>
+              <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {activeWsName || 'Select workspace'}
+              </span>
+              <span style={{ fontSize: 10, opacity: 0.5 }}>▾</span>
+            </button>
+            {showWsSwitcher && (
+              <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {workspaces.map(ws => (
+                  <button key={ws.id}
+                    onClick={() => {
+                      localStorage.setItem('1p2p_activeWorkspace', ws.id);
+                      setActiveWsName(ws.name);
+                      setShowWsSwitcher(false);
+                      window.location.reload();
+                    }}
+                    style={{
+                      background: 'none', border: 'none', textAlign: 'left',
+                      padding: '5px 10px', borderRadius: 6, cursor: 'pointer',
+                      color: 'var(--text-secondary)', fontSize: '0.8rem',
+                    }}
+                  >
+                    {ws.name}
+                  </button>
+                ))}
+                <button
+                  onClick={() => { router.push('/dashboard/workspace'); setShowWsSwitcher(false); }}
+                  style={{ background: 'none', border: 'none', textAlign: 'left', padding: '5px 10px', borderRadius: 6, cursor: 'pointer', color: 'var(--brand-500)', fontSize: '0.8rem' }}
+                >
+                  + New Workspace
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {isCollapsed && (
           <button
