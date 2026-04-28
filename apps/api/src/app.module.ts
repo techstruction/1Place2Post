@@ -30,6 +30,11 @@ import { AdminModule } from './admin/admin.module';
 import { InstagramModule } from './social/instagram/instagram.module';
 import { TwitterModule } from './social/twitter/twitter.module';
 import { LinkedinModule } from './social/linkedin/linkedin.module';
+import { FacebookModule } from './social/facebook/facebook.module';
+import { ThreadsModule } from './social/threads/threads.module';
+import { YoutubeModule } from './social/youtube/youtube.module';
+import { TelegramModule } from './social/telegram/telegram.module';
+import { TiktokModule } from './social/tiktok/tiktok.module';
 import { McpModule } from './mcp/mcp.module';
 import { TokenHealthModule } from './token-health/token-health.module';
 import { RateLimitModule } from './rate-limit/rate-limit.module';
@@ -67,6 +72,11 @@ import { RateLimitModule } from './rate-limit/rate-limit.module';
     InstagramModule,
     TwitterModule,
     LinkedinModule,
+    FacebookModule,
+    ThreadsModule,
+    YoutubeModule,
+    TelegramModule,
+    TiktokModule,
     McpModule,
     TokenHealthModule,
     RateLimitModule,
