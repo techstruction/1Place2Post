@@ -16,7 +16,7 @@ import { BotRuleModule } from './bot-rule/bot-rule.module';
 import { MediaModule } from './media/media.module';
 import { TemplateModule } from './template/template.module';
 import { AnalyticsModule } from './analytics/analytics.module';
-import { TeamModule } from './team/team.module';
+import { WorkspaceModule } from './workspace/workspace.module';
 import { PostApprovalModule } from './post-approval/post-approval.module';
 import { RssCampaignModule } from './rss-campaign/rss-campaign.module';
 import { OutgoingWebhookModule } from './outgoing-webhook/outgoing-webhook.module';
@@ -53,7 +53,7 @@ import { RateLimitModule } from './rate-limit/rate-limit.module';
     MediaModule,
     TemplateModule,
     AnalyticsModule,
-    TeamModule,
+    WorkspaceModule,
     PostApprovalModule,
     RssCampaignModule,
     OutgoingWebhookModule,
