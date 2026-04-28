@@ -20,7 +20,11 @@ export default function LoginPage() {
         try {
             const res = await authApi.login(email, password);
             setToken(res.access_token);
-            router.push('/dashboard');
+            if (res.needsOnboarding) {
+                router.push('/onboarding/step-1');
+            } else {
+                router.push('/dashboard');
+            }
         } catch (err: any) {
             setError(err.message || 'Login failed');
         } finally {

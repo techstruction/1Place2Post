@@ -39,7 +39,11 @@ export default function RegisterPage() {
         try {
             const res = await authApi.register(email, password, name);
             setToken(res.access_token);
-            router.push('/dashboard');
+            if (res.needsOnboarding) {
+                router.push('/onboarding/step-1');
+            } else {
+                router.push('/dashboard');
+            }
         } catch (err: any) {
             setError(err.message || 'Registration failed');
         } finally {

@@ -217,6 +217,49 @@ export default function WelcomePage() {
         ))}
       </div>
 
+      {/* Getting Started */}
+      <div className="card" style={{ marginBottom:'1.5rem' }}>
+        <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1rem' }}>
+          <h2 style={{ fontSize:'1rem',fontWeight:600 }}>Getting Started</h2>
+          <span style={{ fontSize:'0.75rem',color:'var(--text-muted)' }}>Quick guide</span>
+        </div>
+        <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'1rem' }}>
+          {[
+            { step:'1', title:'Create a Workspace', desc:'Organize your accounts and team under one workspace.', href:'/dashboard/workspace', cta:'Open Workspace' },
+            { step:'2', title:'Connect Accounts', desc:'Link your Instagram, Twitter, YouTube, and more.', href:'/dashboard/connections', cta:'Connect Now' },
+            { step:'3', title:'Schedule Your First Post', desc:'Write a caption, pick a time, and let us handle the rest.', href:'/dashboard/posts/new', cta:'Create Post' },
+            { step:'4', title:'Invite Your Team', desc:'Add members to collaborate on content.', href:'/dashboard/workspace', cta:'Add Members' },
+          ].map(s => (
+            <a key={s.step} href={s.href} style={{ textDecoration:'none' }}>
+              <div style={{
+                padding:'1rem',borderRadius:10,border:'1.5px solid var(--border-default)',
+                background:'var(--bg-card)',cursor:'pointer',transition:'border-color 0.15s',
+                display:'flex',flexDirection:'column',gap:'0.5rem',
+              }}
+                onMouseEnter={e=>(e.currentTarget as HTMLElement).style.borderColor='var(--brand-500)'}
+                onMouseLeave={e=>(e.currentTarget as HTMLElement).style.borderColor='var(--border-default)'}
+              >
+                <div style={{ width:28,height:28,borderRadius:'50%',background:'var(--brand-500)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.8rem',fontWeight:700 }}>{s.step}</div>
+                <div style={{ fontWeight:600,fontSize:'0.875rem' }}>{s.title}</div>
+                <div style={{ fontSize:'0.8rem',color:'var(--text-muted)',lineHeight:1.4 }}>{s.desc}</div>
+                <div style={{ fontSize:'0.8rem',color:'var(--brand-500)',fontWeight:600,marginTop:'0.25rem' }}>{s.cta} →</div>
+              </div>
+            </a>
+          ))}
+        </div>
+        <div style={{ marginTop:'1.25rem',padding:'0.75rem 1rem',borderRadius:8,background:'rgba(224,96,40,0.06)',border:'1px solid rgba(224,96,40,0.2)',display:'flex',alignItems:'center',gap:'0.75rem' }}>
+          <span style={{ fontSize:'1.25rem' }}>🎬</span>
+          <div>
+            <div style={{ fontWeight:600,fontSize:'0.875rem' }}>QuickStart Video</div>
+            <div style={{ fontSize:'0.8rem',color:'var(--text-muted)' }}>Watch a 2-minute walkthrough of the platform</div>
+          </div>
+          <button className="btn btn-primary" style={{ marginLeft:'auto',fontSize:'0.8rem',padding:'0.4rem 0.9rem' }}
+            onClick={()=>alert('Video coming soon! Check back after launch.')}>
+            Watch →
+          </button>
+        </div>
+      </div>
+
       {/* Recent Posts */}
       <div style={{
         background: 'var(--bg-card)',
