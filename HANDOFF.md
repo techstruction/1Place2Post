@@ -4,15 +4,23 @@
 
 ---
 
-## Production Status (as of 2026-04-27)
+## Production Status (as of 2026-04-28)
 
-**Version:** v0.10.0
-**Branch:** `main` — fully merged, pushed to `origin/main`
+**Version:** v0.11.0
+**Branch:** `main` — merged locally, **not yet pushed to origin or rebuilt in production**
 **Repo:** `github.com/techstruction/1Place2Post`
 **URL:** `https://1place2post.techstruction.co`
 **Server:** Oracle Cloud Ubuntu 22.04 ARM64 (`openbrain-node-01` / `100.101.15.109` via Tailscale)
 
-Phases 0–12 are complete. All containers are rebuilt and healthy. Phase 13 (Feature Completeness & Polish) is the immediate next build.
+Phases 0–13a are complete on `main`. **Production containers have NOT been rebuilt for Phase 13a yet** — the schema migration (`workspace_architecture`) has been applied to the live DB via `prisma migrate deploy`, but the API and web containers are still running Phase 12 code. Rebuild required before Phase 13b begins.
+
+**Rebuild command (run before starting 13b):**
+```bash
+cd /home/ubuntu/1P2P-main
+GIT_SSH_COMMAND="ssh -i ~/.ssh/github_tc" git push origin main
+docker compose -f deploy/docker-compose.prod.yml up -d --build
+docker exec 1p_nginx nginx -s reload
+```
 
 ---
 
@@ -98,7 +106,11 @@ See `LEDGER.md` for the full chronological record. Key decisions:
 - **Node 20 required** — `@nestjs/schedule` uses `crypto.randomUUID()` global (Node 19+). API Dockerfile uses `node:20-alpine`.
 - **Nginx DNS resolver** — `resolver 127.0.0.11 valid=10s` + `set $upstream` variables force per-request DNS re-resolution. Without this, container IP changes after rebuilds cause 502s until nginx is manually reloaded.
 - **Local disk uploads** — Multer saves to `/uploads/*` inside API container. Cloudflare R2 migration planned for Phase 16.
-- **B2B team model** — All resources scoped to a `Team`, not individual users.
+- **Workspace model (Phase 13a)** — All resources scoped to a `Workspace`, not individual users. `Team`/`TeamMember`/`TeamRole` fully replaced. `SocialAccount.workspaceId` required — accounts belong to the workspace, not the connecting user. Users can own or join multiple workspaces. Active workspace stored client-side in `localStorage['1p2p_activeWorkspace']` and passed as `workspaceId` query param to all OAuth initiation endpoints.
+- **WorkspaceRole tiers** — OWNER | ADMIN | SUPERVISOR | MEMBER. Only OWNER can change roles or transfer ownership. OWNER/ADMIN can invite/remove members.
+- **OAuth state carries workspaceId** — Instagram, Twitter, LinkedIn `getAuthUrl(userId, workspaceId)`. State is base64 JSON `{ userId, workspaceId }`. Callback uses `workspaceId_platform_platformId` unique key for upsert.
+- **Platform enum expanded** — THREADS and TELEGRAM added (ready for Phase 13b services).
+- **User.onboardingCompletedAt** — nullable DateTime. Null = needs onboarding wizard. Set at wizard completion. Auth response includes `needsOnboarding: boolean`.
 - **Postgres DB user is `1p2p`** — not the default `postgres`.
 - **Google OAuth via Passport.js** — `passwordHash` is nullable for passwordless paths.
 - **ARM64 server** — all Docker images must be ARM64-compatible. `node:20-alpine` is ARM64-compatible.
@@ -137,16 +149,22 @@ assets/
 
 See `ROADMAP.md` for full phase breakdown.
 
-**Phase 13 — Feature Completeness & Polish (IMMEDIATE NEXT):**
+**Phase 13b — Onboarding Wizard & Platform Connections (IMMEDIATE NEXT):**
+- Plan: `docs/superpowers/plans/2026-04-28-13b-onboarding-connections.md`
+- 4-step onboarding wizard at `/onboarding/` (role → workspace → platforms → get started)
+- Platform grid (Publer-style) — all platforms shown, Coming Soon for LinkedIn/Pinterest/Bluesky/Mastodon/Snapchat
+- New OAuth services: Facebook Pages, Threads, YouTube, TikTok
+- Telegram bot-token connection (no OAuth — @BotFather token + channel username)
+- `/dashboard/connections` redesigned with platform grid
+- QuickStart / Getting Started section on dashboard
+- Auth flow: register/login returns `needsOnboarding` → redirect to `/onboarding/step-1`
+
+**Phase 13c — Feature Completeness & Polish:**
 - Calendar: drag-and-drop rescheduling
 - Post composer: media upload UX, platform character counters, hashtag suggestions
-- Bulk scheduling (CSV import or multi-select)
-- AI Studio: caption generation (Anthropic claude-haiku-4-5)
-- Analytics: chart visualizations (line/bar for engagement over time)
-- Lead pipeline: Kanban drag-and-drop
-- Mobile-responsive layouts (full, not just sidebar collapse)
-- Skeleton loading on remaining 18 dashboard pages
-- Form validation: consistent client-side patterns across all forms
+- Bulk scheduling (CSV import)
+- AI Studio: caption generation
+- Analytics: chart visualizations
 
 **Phase 14 — Billing & Monetization (LAUNCH BLOCKER):**
 - Stripe Billing (subscriptions, trials, upgrades, downgrades)
@@ -176,6 +194,8 @@ See `ROADMAP.md` for full phase breakdown.
 - [x] Phase 10 complete (UI design system shipped)
 - [x] Phase 11 complete (reliability infrastructure — "posts that actually post")
 - [x] Phase 12 complete (brand identity, UI polish, production rebuilt)
+- [x] Phase 13a complete (workspace architecture — merged to main, DB migrated, rebuild pending)
+- [ ] Phase 13b complete (onboarding wizard + 5 new platform connections)
 - [ ] Phase 14 complete (Stripe billing live)
 - [ ] Phase 15 in progress (core tests passing)
 - [ ] Publish success rate ≥ 99% over 30-day window (requires real platform API integration)
@@ -197,5 +217,6 @@ See `ROADMAP.md` for full phase breakdown.
 - **Tailwind v4 @config path** — `@config "../tailwind.config.ts"` in `app/globals.css`. Path is relative to the CSS file, not the package root.
 - **shadcn/ui + class-variance-authority** — after `npx shadcn@latest add`, verify `class-variance-authority` is in `package.json`. CLI skips it for Tailwind v4 projects.
 - **`.env.example` gitignore** — use `git add -f` to stage `.env.example` files (`.env.*` pattern in `.gitignore` catches them).
-- **Test baseline** — 86/88 tests passing. 2 pre-existing failures in Instagram scaffold (`instagram.service.spec.ts`, `instagram.controller.spec.ts`). Not regressions.
+- **Test baseline** — 96/98 tests passing (86 original + 10 new workspace tests). 2 pre-existing failures in Instagram scaffold (`instagram.service.spec.ts`, `instagram.controller.spec.ts`). Not regressions.
+- **Workspace active state** — stored in `localStorage['1p2p_activeWorkspace']` on the frontend. Sidebar fetches `/workspaces/mine` on load to populate the workspace switcher. Pass `workspaceId` in all OAuth initiation URLs.
 - **next-themes hydration** — `suppressHydrationWarning` must be on `<html>` element in `layout.tsx`. Without it, React throws a hydration mismatch for the `class` attribute injected by next-themes.

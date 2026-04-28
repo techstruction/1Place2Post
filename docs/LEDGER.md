@@ -46,6 +46,18 @@ This document maintains a chronological record of major architectural decisions,
 - **OAuth Infrastructure**: Bound Passport.js with the `google-oauth20` strategy inside the `AuthController`. Modified `passwordHash` to accept NULL integers in Prisma, establishing secure multi-factor or magic-login capabilities for the future.
 - **Admin Root Console**: Erected the `/admin` prefix across front and backend systems governed by a strict RBAC policy guard. Integrated API status monitoring, comprehensive read-only `AuditLogs`, and dynamic UI logic for `FeatureFlag` state flipping.
 
+### Phase 13a: Workspace Architecture Migration (2026-04-28)
+- **Team → Workspace rename**: `Team`/`TeamMember`/`TeamRole` fully replaced by `Workspace`/`WorkspaceMember`/`WorkspaceRole`. Hub/star topology: workspace is the organizational hub — social accounts, posts, and members all belong to it. Users can own or join multiple workspaces.
+- **WorkspaceRole expanded**: Four tiers — OWNER (full control), ADMIN (invite/remove/settings), SUPERVISOR (create/schedule/approve), MEMBER (read/draft). Slug and industry fields added to Workspace.
+- **SocialAccount.workspaceId**: Accounts belong to the workspace, not the user. `userId` kept as audit trail. Unique constraint changed from `[userId, platform, platformId]` to `[workspaceId, platform, platformId]`. Team members post on behalf of the workspace by using workspace-stored OAuth tokens server-side.
+- **OAuth state carries workspaceId**: `getAuthUrl(userId, workspaceId)` in Instagram, Twitter, LinkedIn. State is base64 JSON `{ userId, workspaceId }`. Callback scopes upsert to workspace.
+- **Active workspace in localStorage**: Client stores `1p2p_activeWorkspace`. Sidebar fetches `/workspaces/mine` for workspace switcher. All OAuth initiation URLs include `workspaceId` query param.
+- **Platform enum expanded**: THREADS and TELEGRAM added for Phase 13b services.
+- **User model additions**: `onboardingCompletedAt DateTime?` (null = needs onboarding), `userRole UserRole?` enum. Auth response returns `needsOnboarding: boolean`.
+- **WorkspaceService TDD**: 10 tests. `assertMember`/`assertRole` private helpers centralize all permission checks. No duplicated role logic.
+- **prisma migrate dev requires TTY**: In non-interactive environments, use `prisma migrate deploy` instead.
+- **Test baseline after 13a**: 96/98 passing. 2 pre-existing Instagram scaffold failures (unchanged).
+
 ### Phase 12: Brand Identity & UI Polish (2026-04-27)
 - **Brand Color Pivot**: Replaced generic indigo `#4F6EF7` with the app icon's native colors — orange `#E06028` as primary action color, blue `#4B8EC4` as secondary. All CSS custom properties updated in `globals.css`; Tailwind config extended with `brand.secondary`. Logo icon colors now drive the entire design system.
 - **Page Title Accent**: `.page-title` CSS class updated to render in `--brand-secondary` (blue `#4B8EC4`) instead of inherited white. Applied globally across all 21 dashboard pages with zero per-page changes.

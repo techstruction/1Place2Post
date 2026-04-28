@@ -21,12 +21,30 @@
 | 10 | Design System & UI Overhaul | 2026-04-24 |
 | 11 | Publishing Reliability Infrastructure | 2026-04-27 |
 | 12 | Brand Identity & UI Polish | 2026-04-27 |
+| 13a | Workspace Architecture Migration | 2026-04-28 |
 
 ---
 
 ## Active & Upcoming Phases
 
-### Phase 13 — Feature Completeness & Polish ← NEXT
+### Phase 13b — Onboarding Wizard & Platform Connections ← NEXT
+**Status:** 🟡 Planned — plan written, execution next session
+**Goal:** Publer-style onboarding wizard, platform grid with all 7 connection types, QuickStart section on dashboard.
+
+**Plan:** `docs/superpowers/plans/2026-04-28-13b-onboarding-connections.md`
+
+**Deliverables:**
+- 4-step onboarding wizard at `/onboarding/` (role → workspace → social accounts → get started)
+- `onboardingCompletedAt` saved on User; post-register/login redirect to wizard
+- Platform grid component: all platforms shown, Coming Soon for unimplemented (LinkedIn, Pinterest, Bluesky, Mastodon, Snapchat)
+- OAuth services: Facebook Pages, Threads, YouTube, TikTok
+- Bot-token connection: Telegram (no OAuth — uses @BotFather token + channel verification)
+- Connections page redesigned with platform grid (replaces manual token form)
+- QuickStart / Getting Started section on dashboard
+
+---
+
+### Phase 13c — Feature Completeness & Polish
 **Status:** ⚪ Planned
 **Goal:** Close the feature gaps identified in the UX audit and competitive research.
 
@@ -119,6 +137,8 @@ Before public launch / paid customer acquisition:
 - [x] Phase 10 complete (UI design system shipped)
 - [x] Phase 11 complete (reliability infrastructure — "posts that actually post")
 - [x] Phase 12 complete (brand identity, UI polish, production rebuilt)
+- [x] Phase 13a complete (workspace architecture — accounts belong to workspaces)
+- [ ] Phase 13b complete (onboarding wizard + platform connections)
 - [ ] Phase 14 complete (Stripe billing live)
 - [ ] Phase 15 in progress (core tests passing)
 - [ ] Publish success rate ≥ 99% over 30-day window (requires real platform API integration)

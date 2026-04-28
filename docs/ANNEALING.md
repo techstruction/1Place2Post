@@ -347,3 +347,27 @@ These are distilled from the above mistakes into standing rules for all future f
 | 14 | Inter-container URLs use service hostnames, never `localhost` — `redis://redis:6379` not `redis://localhost:6379` |
 | 15 | nginx `proxy_pass` to Docker containers requires `resolver 127.0.0.11` + `set $var` to survive rebuilds |
 | 16 | `next-themes` always requires `suppressHydrationWarning` on `<html>` |
+
+---
+
+## Phase 13a — Workspace Architecture Migration (2026-04-28)
+
+---
+
+### MISTAKE 21: `prisma migrate dev` requires a TTY — fails silently in non-interactive environments
+
+**What happened:** Running `npx prisma migrate dev --name workspace_architecture` in a subagent (no TTY) caused the command to hang waiting for interactive input to confirm schema drift. The workaround was to use `prisma migrate diff` to generate the SQL manually, then `prisma migrate deploy` to apply it.
+
+**Why it's subtle:** `prisma migrate dev` is a development command that interactively prompts before applying destructive changes (drops, renames). In CI or scripted environments it can hang or exit silently. `prisma migrate deploy` is the non-interactive variant — it applies pending migrations without any prompts.
+
+**Rule:** In any non-interactive context (CI, agent-driven scripts, Docker build steps), always use `prisma migrate deploy` to apply migrations. Only use `prisma migrate dev` at the human terminal.
+
+---
+
+### MISTAKE 22: OAuth `upsert` unique key must match the Prisma schema unique constraint exactly
+
+**What happened:** After changing the schema unique constraint on `SocialAccount` from `@@unique([userId, platform, platformId])` to `@@unique([workspaceId, platform, platformId])`, all Instagram/Twitter/LinkedIn services had TypeScript compile errors referencing `userId_platform_platformId` in their `upsert` `where` clauses. Prisma derives the compound key name directly from the field names in the `@@unique` constraint.
+
+**Rule:** Any time you change a Prisma `@@unique` constraint, grep for the old compound key name (`fieldA_fieldB_fieldC`) in all service files and update them. The compound key name is auto-derived — `@@unique([workspaceId, platform, platformId])` → `workspaceId_platform_platformId`.
+
+**How to find all usages:** `grep -r "userId_platform_platformId" apps/api/src/ --include="*.ts"`
