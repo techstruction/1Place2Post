@@ -79,6 +79,8 @@ export const socialApi = {
     list: () => apiFetch('/social-accounts'),
     create: (data: object) => apiFetch('/social-accounts', { method: 'POST', body: JSON.stringify(data) }),
     delete: (id: string) => apiFetch(`/social-accounts/${id}`, { method: 'DELETE' }),
+    listForWorkspace: (workspaceId: string) =>
+        apiFetch(`/social-accounts/workspace/${workspaceId}`),
 };
 
 // Series
@@ -105,4 +107,49 @@ export const botRulesApi = {
     update: (id: string, data: object) => apiFetch(`/bot-rules/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     delete: (id: string) => apiFetch(`/bot-rules/${id}`, { method: 'DELETE' }),
 };
+
+// ── Workspace ─────────────────────────────────────────────────────────────
+
+export type WorkspaceWithRole = {
+  id: string; name: string; slug: string; industry: string | null;
+  ownerId: string; myRole: string;
+  _count: { socialAccounts: number; members: number };
+};
+
+export type WorkspaceDetail = WorkspaceWithRole & {
+  members: Array<{ id: string; role: string; user: { id: string; name: string | null; email: string } }>;
+  _count: { socialAccounts: number; posts: number; members: number };
+};
+
+export const workspaceApi = {
+  list: (): Promise<WorkspaceWithRole[]> =>
+    apiFetch('/workspaces/mine'),
+
+  create: (body: { name: string; industry?: string }): Promise<WorkspaceWithRole> =>
+    apiFetch('/workspaces', { method: 'POST', body: JSON.stringify(body) }),
+
+  get: (id: string): Promise<WorkspaceDetail> =>
+    apiFetch(`/workspaces/${id}`),
+
+  invite: (workspaceId: string, body: { email: string; role?: string }) =>
+    apiFetch(`/workspaces/${workspaceId}/members`, { method: 'POST', body: JSON.stringify(body) }),
+
+  updateRole: (workspaceId: string, userId: string, role: string) =>
+    apiFetch(`/workspaces/${workspaceId}/members/${userId}`, { method: 'PATCH', body: JSON.stringify({ role }) }),
+
+  removeMember: (workspaceId: string, userId: string) =>
+    apiFetch(`/workspaces/${workspaceId}/members/${userId}`, { method: 'DELETE' }),
+
+  socialAccounts: (workspaceId: string) =>
+    apiFetch(`/social-accounts/workspace/${workspaceId}`),
+};
+
+export function getActiveWorkspaceId(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('1p2p_activeWorkspace');
+}
+
+export function setActiveWorkspaceId(id: string) {
+  if (typeof window !== 'undefined') localStorage.setItem('1p2p_activeWorkspace', id);
+}
 
