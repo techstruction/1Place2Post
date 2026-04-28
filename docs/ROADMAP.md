@@ -22,29 +22,31 @@
 | 11 | Publishing Reliability Infrastructure | 2026-04-27 |
 | 12 | Brand Identity & UI Polish | 2026-04-27 |
 | 13a | Workspace Architecture Migration | 2026-04-28 |
+| 13b | Onboarding Wizard & Platform Connections | 2026-04-28 |
 
 ---
 
 ## Active & Upcoming Phases
 
-### Phase 13b — Onboarding Wizard & Platform Connections ← NEXT
-**Status:** 🟡 Planned — plan written, execution next session
-**Goal:** Publer-style onboarding wizard, platform grid with all 7 connection types, QuickStart section on dashboard.
+### Phase 13c — Platform OAuth Credentials Setup ← IMMEDIATE NEXT (non-code)
+**Status:** 🟡 In progress — code shipped, credentials pending
+**Goal:** Register developer apps for Threads and TikTok, add production redirect URIs for Facebook/YouTube, verify all 7 platform connections end-to-end.
 
-**Plan:** `docs/superpowers/plans/2026-04-28-13b-onboarding-connections.md`
+**Plan:** `docs/superpowers/plans/2026-04-28-platform-oauth-setup.md`
 
 **Deliverables:**
-- 4-step onboarding wizard at `/onboarding/` (role → workspace → social accounts → get started)
-- `onboardingCompletedAt` saved on User; post-register/login redirect to wizard
-- Platform grid component: all platforms shown, Coming Soon for unimplemented (LinkedIn, Pinterest, Bluesky, Mastodon, Snapchat)
-- OAuth services: Facebook Pages, Threads, YouTube, TikTok
-- Bot-token connection: Telegram (no OAuth — uses @BotFather token + channel verification)
-- Connections page redesigned with platform grid (replaces manual token form)
-- QuickStart / Getting Started section on dashboard
+- Facebook Pages redirect URI registered in Meta developer console
+- Threads API product added to Meta app + `THREADS_CLIENT_ID`/`SECRET`/`REDIRECT_URI` in `.env`
+- YouTube Data API v3 enabled + `YOUTUBE_REDIRECT_URI` in `.env`
+- TikTok developer app created + `TIKTOK_CLIENT_KEY`/`SECRET`/`REDIRECT_URI` in `.env`
+- End-to-end connection test for all 7 platforms
+- Note: Threads + TikTok require **App Review** for production use. 1–2 week timeline for approval.
+
+**To do this:** This is a manual task (clicking through developer consoles, copying credentials). The plan at `docs/superpowers/plans/2026-04-28-platform-oauth-setup.md` has step-by-step instructions for each platform.
 
 ---
 
-### Phase 13c — Feature Completeness & Polish
+### Phase 13d — Feature Completeness & Polish
 **Status:** ⚪ Planned
 **Goal:** Close the feature gaps identified in the UX audit and competitive research.
 
@@ -138,7 +140,8 @@ Before public launch / paid customer acquisition:
 - [x] Phase 11 complete (reliability infrastructure — "posts that actually post")
 - [x] Phase 12 complete (brand identity, UI polish, production rebuilt)
 - [x] Phase 13a complete (workspace architecture — accounts belong to workspaces)
-- [ ] Phase 13b complete (onboarding wizard + platform connections)
+- [x] Phase 13b complete (onboarding wizard + 7 platform connection services)
+- [ ] Phase 13c complete (Threads + TikTok OAuth credentials registered + all 7 platforms verified)
 - [ ] Phase 14 complete (Stripe billing live)
 - [ ] Phase 15 in progress (core tests passing)
 - [ ] Publish success rate ≥ 99% over 30-day window (requires real platform API integration)

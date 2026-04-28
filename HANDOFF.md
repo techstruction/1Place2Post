@@ -6,21 +6,36 @@
 
 ## Production Status (as of 2026-04-28)
 
-**Version:** v0.11.0
-**Branch:** `main` — merged locally, **not yet pushed to origin or rebuilt in production**
+**Version:** v0.13b.0
+**Branch:** `main` — pushed to origin, **containers rebuilt and live**
 **Repo:** `github.com/techstruction/1Place2Post`
 **URL:** `https://1place2post.techstruction.co`
 **Server:** Oracle Cloud Ubuntu 22.04 ARM64 (`openbrain-node-01` / `100.101.15.109` via Tailscale)
 
-Phases 0–13a are complete on `main`. **Production containers have NOT been rebuilt for Phase 13a yet** — the schema migration (`workspace_architecture`) has been applied to the live DB via `prisma migrate deploy`, but the API and web containers are still running Phase 12 code. Rebuild required before Phase 13b begins.
+Phases 0–13b are complete and deployed. **Production containers are running Phase 13b code.** DB schema is fully migrated (10 migrations applied). Test baseline: 96/98 passing.
 
-**Rebuild command (run before starting 13b):**
+**Rebuild command (standard):**
 ```bash
 cd /home/ubuntu/1P2P-main
-GIT_SSH_COMMAND="ssh -i ~/.ssh/github_tc" git push origin main
 docker compose -f deploy/docker-compose.prod.yml up -d --build
 docker exec 1p_nginx nginx -s reload
 ```
+
+**⚠️ Pending: Platform OAuth credentials not yet added to production .env**
+
+The following env vars are missing — OAuth redirect buttons exist in the UI but will fail without them:
+```
+FACEBOOK_REDIRECT_URI=https://1place2post.techstruction.co/api/social/facebook/callback
+THREADS_CLIENT_ID=<from Meta developer console>
+THREADS_CLIENT_SECRET=<from Meta developer console>
+THREADS_REDIRECT_URI=https://1place2post.techstruction.co/api/social/threads/callback
+YOUTUBE_REDIRECT_URI=https://1place2post.techstruction.co/api/social/youtube/callback
+TIKTOK_CLIENT_KEY=<from TikTok developer console>
+TIKTOK_CLIENT_SECRET=<from TikTok developer console>
+TIKTOK_REDIRECT_URI=https://1place2post.techstruction.co/api/social/tiktok/callback
+```
+
+See: `docs/superpowers/plans/2026-04-28-platform-oauth-setup.md` for step-by-step developer console instructions.
 
 ---
 
@@ -149,17 +164,16 @@ assets/
 
 See `ROADMAP.md` for full phase breakdown.
 
-**Phase 13b — Onboarding Wizard & Platform Connections (IMMEDIATE NEXT):**
-- Plan: `docs/superpowers/plans/2026-04-28-13b-onboarding-connections.md`
-- 4-step onboarding wizard at `/onboarding/` (role → workspace → platforms → get started)
-- Platform grid (Publer-style) — all platforms shown, Coming Soon for LinkedIn/Pinterest/Bluesky/Mastodon/Snapchat
-- New OAuth services: Facebook Pages, Threads, YouTube, TikTok
-- Telegram bot-token connection (no OAuth — @BotFather token + channel username)
-- `/dashboard/connections` redesigned with platform grid
-- QuickStart / Getting Started section on dashboard
-- Auth flow: register/login returns `needsOnboarding` → redirect to `/onboarding/step-1`
+**Phase 13c — Platform OAuth Credentials (IMMEDIATE NEXT — manual dev console work):**
+- Plan: `docs/superpowers/plans/2026-04-28-platform-oauth-setup.md`
+- Register Facebook redirect URI in Meta developer console (5 min)
+- Add Threads API product to Meta app, get `THREADS_CLIENT_ID`/`SECRET` (15 min + approval wait)
+- Enable YouTube Data API v3 + add YouTube redirect URI to Google Cloud (10 min)
+- Create TikTok developer app + add `TIKTOK_CLIENT_KEY`/`SECRET` (20 min + approval wait)
+- Add all env vars to `apps/api/.env`, rebuild API container
+- **Heads up:** Threads `threads_content_publish` + TikTok Content Posting API both require formal App Review — 1–2 weeks. Everything works in dev/sandbox mode with test accounts in the meantime.
 
-**Phase 13c — Feature Completeness & Polish:**
+**Phase 14 — Billing & Monetization (LAUNCH BLOCKER):**
 - Calendar: drag-and-drop rescheduling
 - Post composer: media upload UX, platform character counters, hashtag suggestions
 - Bulk scheduling (CSV import)
@@ -195,7 +209,8 @@ See `ROADMAP.md` for full phase breakdown.
 - [x] Phase 11 complete (reliability infrastructure — "posts that actually post")
 - [x] Phase 12 complete (brand identity, UI polish, production rebuilt)
 - [x] Phase 13a complete (workspace architecture — merged to main, DB migrated, rebuild pending)
-- [ ] Phase 13b complete (onboarding wizard + 5 new platform connections)
+- [x] Phase 13b complete (onboarding wizard + 7 platform connection services live)
+- [ ] Phase 13c complete (Threads + TikTok OAuth credentials + all 7 platforms verified end-to-end)
 - [ ] Phase 14 complete (Stripe billing live)
 - [ ] Phase 15 in progress (core tests passing)
 - [ ] Publish success rate ≥ 99% over 30-day window (requires real platform API integration)
